@@ -10,9 +10,9 @@
 
 Stop a hidden timer as close as possible to five daily target times.
 
-Each player's score is determined by their Total Error.
+Each player's score is determined by Total Error.
 
-Lower scores are better.
+Lower scores rank higher.
 
 ---
 
@@ -24,11 +24,11 @@ Every player receives the exact same five target times.
 
 Example:
 
-* 1.24
-* 3.87
-* 5.16
-* 7.44
-* 9.28
+- 1.24
+- 3.87
+- 5.16
+- 7.44
+- 9.28
 
 The challenge remains active until the next daily reset.
 
@@ -40,19 +40,19 @@ Five target times are generated each day.
 
 Rules:
 
-* Minimum target time: 0.70 seconds
-* Maximum target time: 10.00 seconds
-* All targets are displayed to two decimal places
-* At least two targets must be below 5.00 seconds
-* No duplicate targets are allowed
+- Minimum target time: 0.70 seconds
+- Maximum target time: 10.00 seconds
+- All targets are displayed to two decimal places
+- At least two targets must be below 5.00 seconds
+- No duplicate targets are allowed
 
 Example:
 
-* 0.91
-* 2.74
-* 4.63
-* 6.81
-* 9.15
+- 0.91
+- 2.74
+- 4.63
+- 6.81
+- 9.15
 
 ---
 
@@ -118,15 +118,15 @@ Example:
 
 | Target | Recorded | Error |
 | ------ | -------- | ----- |
-| 1.24   | 1.22     | 0.02  |
-| 3.87   | 3.91     | 0.04  |
-| 5.16   | 5.12     | 0.04  |
-| 7.44   | 7.41     | 0.03  |
-| 9.28   | 9.35     | 0.07  |
+| 1.24 | 1.22 | 0.02 |
+| 3.87 | 3.91 | 0.04 |
+| 5.16 | 5.12 | 0.04 |
+| 7.44 | 7.41 | 0.03 |
+| 9.28 | 9.35 | 0.07 |
 
 Total Error = 0.20
 
-Lower scores are better.
+Lower scores rank higher.
 
 ---
 
@@ -136,9 +136,9 @@ Each player may submit one completed challenge per day.
 
 Once a challenge has been submitted:
 
-* Scores cannot be edited
-* The challenge is considered complete
-* Additional submissions do not count toward leaderboards or statistics
+- Scores cannot be edited
+- The challenge is considered complete
+- Additional submissions do not count toward leaderboards or statistics
 
 ---
 
@@ -146,13 +146,13 @@ Once a challenge has been submitted:
 
 ## Daily Leaderboard
 
-Ranks all players for the current day's challenge.
+Ranks all submitted players for the current day's challenge.
 
 Ranking Priority:
 
 1. Lowest Total Error
-2. Lowest Best Individual Error
-3. Earliest Submission Time
+2. Lowest best individual error
+3. Earliest submission time
 
 ---
 
@@ -184,52 +184,39 @@ Minimum Participation Requirement:
 
 30 completed daily challenges.
 
-This is considered the primary long-term leaderboard.
+This should become the primary long-term leaderboard after enough users have played.
 
 ---
 
-# Profile Statistics
+# MVP Profile Statistics
 
-Each player profile tracks:
+Each player profile should track:
 
-## Participation
+## Core
 
-* Days Played
-* Attempts
-* Current Streak
-* Longest Streak
-
-## Rankings
-
-* Current Rank
-* Best Rank Achieved
-* Top 10 Finishes
-* Top 25 Finishes
-* Top 50 Finishes
-* Top 100 Finishes
-
-## Accuracy
-
-* Career Average Error
-* Best Daily Score
-* Best Single Timer
-* Average Target Error
-* Median Target Error
+- Career Average Error
+- Days Played
+- Current Streak
+- Longest Streak
+- Perfect Timers
+- Best Daily Score
+- Attempts
 
 ## Precision
 
-* Perfect Timers
-* Timers Within 0.01
-* Timers Within 0.05
-* Timers Within 0.10
-* Timers Within 0.25
+- Perfect Timers
+- Timers Within 0.05
+- Timers Within 0.10
+- Timers Within 0.25
+- Precision Percentage
 
-## History
+## Finishes
 
-* Best Week
-* Best Month
-* Most Consecutive Top 100 Finishes
-* Most Consecutive Perfect Timers
+These should be tracked but may stay hidden until traffic is high enough:
+
+- Top 10 Finishes
+- Top 100 Finishes
+- First Place Finishes
 
 ---
 
@@ -259,11 +246,19 @@ Perfect Timers are tracked permanently on player profiles.
 
 ---
 
+# Future Competitive Systems
+
+Ranks, MMR, grades, and percentiles should not be part of the MVP.
+
+They should be designed after enough real player data exists to understand score distributions and player skill levels.
+
+---
+
 # Philosophy
 
 SplitSecond rewards precision, consistency, and daily participation.
 
-There are no levels, upgrades, or power-ups.
+There are no levels, upgrades, or power-ups in the MVP.
 
 Every player faces the exact same challenge.
 
