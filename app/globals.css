@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+/* 1. Register Brand Variables into Tailwind Engine */
+@theme {
+    --color-brand-bg: #0A0B0E;
+    --color-brand-card: #12151E;
+    --color-brand-border: rgba(255, 255, 255, 0.08);
+
+    /* Primary Neon Accent - Lime Green LED Timer Style */
+    --color-neon-lime: #39FF14;
+    --color-neon-green: #22C55E;
+    --color-electric-blue: #3B82F6;
+
+    /* Typography Variables linked from Next.js Font Config */
+    --font-sans: var(--font-sans), system-ui, -apple-system, sans-serif;
+    --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+    --font-college: var(--font-college), IMPACT, sans-serif;
+
+    /* Glow Shadows */
+    --shadow-glow-lime: 0 0 25px rgba(57, 255, 20, 0.35);
+    --shadow-glow-lime-sm: 0 0 12px rgba(57, 255, 20, 0.2);
+}
+
+@layer base {
+
+    *,
+    ::after,
+    ::before {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    html {
+        color-scheme: dark;
+        scroll-behavior: smooth;
+    }
+
+    body {
+        background-color: var(--color-brand-bg);
+        color: #f1f5f9;
+        font-family: var(--font-sans);
+        min-height: 100vh;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    ::selection {
+        background-color: rgba(57, 255, 20, 0.25);
+        color: #39FF14;
+    }
+}
+
+/* Custom Collegiate Athletic Font Utility */
+.font-college {
+    font-family: var(--font-college);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    line-height: 0.9;
+}
+
+/* Digital LED Segment / Hidden Timer Font Styling */
+.font-led {
+    font-family: var(--font-mono);
+    letter-spacing: -0.05em;
+    color: #39FF14;
+    text-shadow: 0 0 12px rgba(57, 255, 20, 0.6);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0A0B0E;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 9999px;
+}
