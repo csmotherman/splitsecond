@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Teko, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
-import { Timer, User } from "lucide-react";
+import Header from "@/components/layout/Header";
+import { createClient } from "@/lib/supabase/server";
 
 const teko = Teko({
     subsets: ["latin"],
@@ -32,33 +33,46 @@ export const viewport: Viewport = {
     userScalable: false,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const supabase = await createClient();
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+    console.log("LAYOUT USER:", user);
+    const displayName =
+        user?.user_metadata?.full_name ??
+        user?.user_metadata?.name ??
+        user?.email ??
+        null;
+
+    const avatarUrl =
+        user?.user_metadata?.avatar_url ??
+        user?.user_metadata?.picture ??
+        null;
+
     return (
-        <html lang="en" className={`dark ${teko.variable} ${geistMono.variable} ${inter.variable}`}>
-            <body className={`${inter.className} bg-[#0A0B0E] text-slate-100 antialiased min-h-screen pb-24 md:pb-12`}>
+        <html
+            lang="en"
+            data-scroll-behavior="smooth"
+            className={`dark ${teko.variable} ${geistMono.variable} ${inter.variable}`}
+        >
+            <body className="bg-[#0A0B0E] text-slate-100 antialiased min-h-screen pb-12">
+                <div className="mx-aato max-w-md px-5 py-6">
+                    {/* Global Shared Header */}
+                    <Header
+                        isLoggedIn={!!user}
+                        displayName={displayName}
+                        avatarUrl={avatarUrl}
+                    />
 
-                {/* Top Header Badge */}
-                <header className="px-4 pt-6 pb-2 max-w-md mx-auto flex items-center justify-between">
-                    <div className="flex items-center space-x-2 bg-[#12151E] border border-white/10 px-3.5 py-1.5 rounded-full shadow-lg">
-                        <Timer className="w-4 h-4 text-[#39FF14]" />
-                        <span className="font-college text-xl text-white tracking-wider">
-                            SPLIT<span className="text-[#39FF14]">SECOND</span>
-                        </span>
-                    </div>
-
-                    <button className="p-2 rounded-full bg-[#12151E] border border-white/10 hover:border-[#39FF14]/50 transition-colors">
-                        <User className="w-4 h-4 text-slate-300" />
-                    </button>
-                </header>
-
-                {/* Main Application Area */}
-                <main className="max-w-md mx-auto px-4 pt-3">
-                    {children}
-                </main>
+                    {/* Page Content */}
+                    <main>{children}</main>
+                </div>
             </body>
         </html>
     );
