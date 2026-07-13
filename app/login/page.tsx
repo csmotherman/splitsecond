@@ -19,82 +19,65 @@ export default function LoginPage() {
     }
 
     return (
-        <main className="flex min-h-screen items-center justify-center px-6">
+        <main className="flex min-h-[70vh] items-center justify-center px-6">
             <div className="w-full max-w-md">
-                <h1 className="mb-2 text-center text-5xl font-black text-white">
-                    SPLIT
-                    <span className="text-[#39FF14]">
-                        SECOND
-                    </span>
-                </h1>
-
-                <p className="mb-8 text-center text-zinc-400">
-                    Sign in to play today's challenge, save your scores,
-                    and start building your SplitSecond profile.
-                </p>
-
-                <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-5">
-                    <h2 className="mb-4 text-lg font-bold text-white">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+                    <h1 className="text-center text-2xl font-bold text-white">
                         Why create an account?
-                    </h2>
+                    </h1>
 
-                    <ul className="space-y-3 text-sm text-zinc-300">
-                        <li>
-                            ✓ Compete on daily and all-time leaderboards
-                        </li>
+                    <p className="mt-3 text-center text-sm text-zinc-400">
+                        SplitSecond is just getting started. Creating an account now
+                        ensures your progress, scores, and future achievements stay
+                        attached to your profile from day one.
+                    </p>
 
-                        <li>
-                            ✓ Track your personal records and improvement
-                        </li>
+                    <div className="mt-6 space-y-3 text-sm text-zinc-300">
+                        <div>✓ Compete on daily and all-time leaderboards</div>
+                        <div>✓ Save your challenge history automatically</div>
+                        <div>✓ Track personal bests and improvement over time</div>
+                        <div>✓ Secure your username before the community grows</div>
+                    </div>
 
-                        <li>
-                            ✓ Save your challenge history automatically
-                        </li>
+                    <div className="mt-6 rounded-xl border border-[#39FF14]/20 bg-[#39FF14]/10 p-4">
+                        <h2 className="mb-2 font-semibold text-[#39FF14]">
+                            Coming Soon
+                        </h2>
 
-                        <li>
-                            ✓ Reserve your username before more players join
-                        </li>
-                    </ul>
-
-                    <div className="mt-5 rounded-xl border border-[#39FF14]/20 bg-[#39FF14]/10 p-4">
-                        <p className="text-sm text-zinc-200">
-                            Future updates will include ELO ratings,
-                            player levels, achievements, streaks, seasonal
-                            rankings, and additional game modes.
+                        <p className="text-sm text-zinc-300">
+                            ELO ratings, player levels, achievements, streaks,
+                            seasonal rankings, profile stats, and additional game
+                            modes are all planned for future updates.
                         </p>
 
-                        <p className="mt-3 text-sm font-medium text-[#39FF14]">
-                            The sooner you create your account, the more
-                            history, stats, and rewards you'll carry forward
-                            as new features launch.
+                        <p className="mt-3 text-sm font-medium text-white">
+                            The earlier you join, the more history and statistics
+                            you'll build as new features are released.
                         </p>
                     </div>
+
+                    <button
+                        onClick={signInWithGoogle}
+                        className="
+                    mt-6
+                    w-full
+                    rounded-2xl
+                    bg-white
+                    px-5
+                    py-4
+                    font-semibold
+                    text-black
+                    transition
+                    hover:scale-[1.02]
+                "
+                    >
+                        Continue with Google
+                    </button>
+
+                    <p className="mt-3 text-center text-xs text-zinc-500">
+                        Free to play. Sign in takes less than 30 seconds.
+                    </p>
                 </div>
-
-                <button
-                    onClick={signInWithGoogle}
-                    className="
-                        flex
-                        w-full
-                        items-center
-                        justify-center
-                        gap-3
-                        rounded-2xl
-                        bg-white
-                        px-5
-                        py-4
-                        font-semibold
-                        text-black
-                        transition
-                        hover:scale-[1.02]
-                    "
-                >
-                    Continue with Google
-                </button>
-
-                <p className="mt-4 text-center text-xs text-zinc-500">
-                    Free to play. Sign in takes less than 30 seconds.
-                </p>
             </div>
         </main>
     );
