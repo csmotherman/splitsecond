@@ -1,69 +1,27 @@
 import Link from "next/link";
 import { ArrowLeft, Trophy } from "lucide-react";
 
-type LeaderboardEntry = {
-    rank: number;
-    username: string;
-    totalError: number;
-};
+import { getDailyLeaderboard } from "@/lib/game/leaderboard";
 
-export default function LeaderboardPage() {
-    // Replace with Supabase query later
-    const entries: LeaderboardEntry[] = [
-        {
-            rank: 1,
-            username: "Carter",
-            totalError: 0.084,
-        },
-        {
-            rank: 2,
-            username: "Abbey",
-            totalError: 0.102,
-        },
-        {
-            rank: 3,
-            username: "Tyler",
-            totalError: 0.118,
-        },
-        {
-            rank: 4,
-            username: "Jordan",
-            totalError: 0.141,
-        },
-        {
-            rank: 5,
-            username: "Sarah",
-            totalError: 0.157,
-        },
-        {
-            rank: 6,
-            username: "Mike",
-            totalError: 0.201,
-        },
-        {
-            rank: 7,
-            username: "Alex",
-            totalError: 0.228,
-        },
-        {
-            rank: 8,
-            username: "Chris",
-            totalError: 0.274,
-        },
-    ];
+export default async function LeaderboardPage() {
+    const entries =
+        await getDailyLeaderboard();
 
-    const getRankDisplay = (rank: number) => {
+    const getRankDisplay = (
+        rank: number
+    ) => {
         if (rank === 1) return "🥇";
         if (rank === 2) return "🥈";
         if (rank === 3) return "🥉";
+
         return `#${rank}`;
     };
 
     return (
-        <main className="min-h-screen">
+        <main className="space-y-4">
             <Link
                 href="/"
-                className="mb-4 inline-flex items-center gap-2 text-slate-400 hover:text-white"
+                className="inline-flex items-center gap-2 text-slate-400 transition hover:text-white"
             >
                 <ArrowLeft className="h-4 w-4" />
                 Back
@@ -87,43 +45,60 @@ export default function LeaderboardPage() {
                 </div>
 
                 <div className="p-4">
-                    <div className="space-y-2">
-                        {entries.map((entry) => (
-                            <div
-                                key={entry.rank}
-                                className="
-                                    flex
-                                    items-center
-                                    justify-between
-                                    rounded-2xl
-                                    border
-                                    border-white/5
-                                    bg-black/20
-                                    px-4
-                                    py-3
-                                "
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 text-center font-bold">
-                                        {getRankDisplay(
-                                            entry.rank
-                                        )}
+                    {entries.length === 0 ? (
+                        <div className="py-12 text-center">
+                            <p className="font-semibold text-white">
+                                No scores submitted yet.
+                            </p>
+
+                            <p className="mt-2 text-sm text-slate-500">
+                                Be the first player on today's leaderboard.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            {entries.map(
+                                (entry) => (
+                                    <div
+                                        key={`${entry.rank}-${entry.username}`}
+                                        className="
+                                            flex
+                                            items-center
+                                            justify-between
+                                            rounded-2xl
+                                            border
+                                            border-white/5
+                                            bg-black/20
+                                            px-4
+                                            py-3
+                                        "
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 text-center font-bold">
+                                                {getRankDisplay(
+                                                    entry.rank
+                                                )}
+                                            </div>
+
+                                            <span className="font-semibold text-white">
+                                                @
+                                                {
+                                                    entry.username
+                                                }
+                                            </span>
+                                        </div>
+
+                                        <span className="font-mono font-bold text-[#39FF14]">
+                                            {entry.totalError.toFixed(
+                                                3
+                                            )}
+                                            s
+                                        </span>
                                     </div>
-
-                                    <span className="font-semibold text-white">
-                                        {entry.username}
-                                    </span>
-                                </div>
-
-                                <span className="font-mono font-bold text-[#39FF14]">
-                                    {entry.totalError.toFixed(
-                                        3
-                                    )}
-                                    s
-                                </span>
-                            </div>
-                        ))}
-                    </div>
+                                )
+                            )}
+                        </div>
+                    )}
                 </div>
             </section>
         </main>
