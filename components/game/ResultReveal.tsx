@@ -12,7 +12,7 @@ export default function ResultReveal({
     error,
 }: ResultRevealProps) {
     const getRating = () => {
-        if (error <= 0.01) {
+        if (error <= 0.02) {
             return {
                 label: "BULLSEYE",
                 color: "text-yellow-400",

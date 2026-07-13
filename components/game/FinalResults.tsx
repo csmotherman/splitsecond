@@ -40,7 +40,7 @@ export default function FinalResults({
 
     // Fine-tuned 16-tier grade mapping
     const getGrade = (): GradeConfig => {
-        if (totalError <= 0.02)
+        if (totalError <= 0.05)
             return {
                 grade: "GOAT",
                 subtext: "PERFECT TIMING",
@@ -53,7 +53,7 @@ export default function FinalResults({
                 triggerConfetti: true,
             };
 
-        if (totalError <= 0.035)
+        if (totalError <= 0.10)
             return {
                 grade: "S+",
                 subtext: "GODLIKE",
@@ -66,7 +66,7 @@ export default function FinalResults({
                 triggerConfetti: true,
             };
 
-        if (totalError <= 0.05)
+        if (totalError <= 0.15)
             return {
                 grade: "S",
                 subtext: "INSANE ACCURACY",
@@ -78,7 +78,7 @@ export default function FinalResults({
                 triggerConfetti: true,
             };
 
-        if (totalError <= 0.075)
+        if (totalError <= 0.20)
             return {
                 grade: "S-",
                 subtext: "MASTER CLASS",
@@ -90,7 +90,7 @@ export default function FinalResults({
                 triggerConfetti: true,
             };
 
-        if (totalError <= 0.1)
+        if (totalError <= 0.30)
             return {
                 grade: "A+",
                 subtext: "LEGENDARY",
@@ -102,7 +102,7 @@ export default function FinalResults({
                 triggerConfetti: true,
             };
 
-        if (totalError <= 0.15)
+        if (totalError <= 0.40)
             return {
                 grade: "A",
                 subtext: "SUPER SHARP",
@@ -113,7 +113,7 @@ export default function FinalResults({
                 borderGlow: "border-purple-400/30",
             };
 
-        if (totalError <= 0.2)
+        if (totalError <= 0.5)
             return {
                 grade: "A-",
                 subtext: "VERY IMPRESSIVE",
@@ -124,7 +124,7 @@ export default function FinalResults({
                 borderGlow: "border-fuchsia-400/30",
             };
 
-        if (totalError <= 0.3)
+        if (totalError <= 0.7)
             return {
                 grade: "B+",
                 subtext: "GREAT TIMING",
@@ -135,7 +135,7 @@ export default function FinalResults({
                 borderGlow: "border-emerald-400/30",
             };
 
-        if (totalError <= 0.4)
+        if (totalError <= 0.9)
             return {
                 grade: "B",
                 subtext: "SOLID PERFORMER",
@@ -146,7 +146,7 @@ export default function FinalResults({
                 borderGlow: "border-emerald-500/20",
             };
 
-        if (totalError <= 0.5)
+        if (totalError <= 1)
             return {
                 grade: "B-",
                 subtext: "ON TARGET",
@@ -157,7 +157,7 @@ export default function FinalResults({
                 borderGlow: "border-green-500/20",
             };
 
-        if (totalError <= 0.65)
+        if (totalError <= 1.15)
             return {
                 grade: "C+",
                 subtext: "PRETTY GOOD",
@@ -168,7 +168,7 @@ export default function FinalResults({
                 borderGlow: "border-blue-400/30",
             };
 
-        if (totalError <= 0.8)
+        if (totalError <= 1.25)
             return {
                 grade: "C",
                 subtext: "AVERAGE",
@@ -179,7 +179,7 @@ export default function FinalResults({
                 borderGlow: "border-blue-500/20",
             };
 
-        if (totalError <= 1.0)
+        if (totalError <= 1.5)
             return {
                 grade: "C-",
                 subtext: "ROOM TO IMPROVE",
@@ -190,7 +190,7 @@ export default function FinalResults({
                 borderGlow: "border-sky-500/20",
             };
 
-        if (totalError <= 1.3)
+        if (totalError <= 2)
             return {
                 grade: "D+",
                 subtext: "SLIGHTLY OFF",
@@ -201,7 +201,7 @@ export default function FinalResults({
                 borderGlow: "border-amber-500/20",
             };
 
-        if (totalError <= 1.6)
+        if (totalError <= 2.5)
             return {
                 grade: "D",
                 subtext: "NOT QUITE",
@@ -212,7 +212,7 @@ export default function FinalResults({
                 borderGlow: "border-orange-500/20",
             };
 
-        if (totalError <= 2.0)
+        if (totalError <= 3)
             return {
                 grade: "D-",
                 subtext: "OFF PACED",
@@ -261,51 +261,81 @@ export default function FinalResults({
         return () => clearInterval(interval);
     }, [resultGrade.triggerConfetti]);
 
-    const handleShare = async () => {
-        const roundEmojis = results
-            .slice(0, 5)
-            .map((result) => {
-                if (result.error <= 0.02) return "🎯";
-                if (result.error <= 0.05) return "🟢";
-                if (result.error <= 0.10) return "🟡";
-                if (result.error <= 0.20) return "🟠";
-                return "🔴";
-            })
-            .join("");
+    const getShareEmoji = (error: number) => {
+        if (error <= 0.02) return "🎯";
+        if (error <= 0.05) return "🟢";
+        if (error <= 0.1) return "🟡";
+        if (error <= 0.2) return "🟠";
+        return "🔴";
+    };
 
-        const shareText = `SplitSecond #12\n\n${resultGrade.grade} ${resultGrade.emoji}\n${totalError.toFixed(3)}s\n\n${roundEmojis}\n\nsplitsecond.gg`;
+    const handleShare = async () => {
+        const modeLabel =
+            mode === "normal" ? "NORMAL" : "EXTREME";
+
+        const roundLines = results
+            .slice(0, 5)
+            .map((result, index) => {
+                const emoji = getShareEmoji(result.error);
+
+                return `${emoji} R${index + 1}  +${result.error.toFixed(3)}s`;
+            })
+            .join("\n");
+
+        const shareText = [
+            "SPLITSECOND",
+            `${modeLabel} MODE`,
+            "",
+            roundLines,
+            "",
+            `⏱️ TOTAL  +${totalError.toFixed(3)}s`,
+            `${resultGrade.emoji} GRADE  ${resultGrade.grade}`,
+            "",
+            "Can you beat my score?",
+            "https://splitsecond.gg",
+        ].join("\n");
 
         try {
             if (navigator.share) {
                 await navigator.share({
-                    title: "SplitSecond",
+                    title: "SplitSecond Results",
                     text: shareText,
-                    url: "https://splitsecond.gg",
                 });
+
                 return;
             }
 
-            if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+            if (
+                navigator.clipboard &&
+                typeof navigator.clipboard.writeText === "function"
+            ) {
                 await navigator.clipboard.writeText(shareText);
+
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
+
                 return;
             }
 
             const textArea = document.createElement("textarea");
+
             textArea.value = shareText;
             textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
             textArea.style.opacity = "0";
+
             document.body.appendChild(textArea);
+
             textArea.focus();
             textArea.select();
+
             document.execCommand("copy");
             document.body.removeChild(textArea);
 
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
-            console.error("Share failed:", err);
+        } catch (error) {
+            console.error("Share failed:", error);
         }
     };
 
