@@ -22,7 +22,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
     title: "SplitSecond | Every Millisecond Matters",
-    description: "Stop the hidden timer as close as possible to five daily target times.",
+    description:
+        "Stop the hidden timer as close as possible to five daily target times.",
 };
 
 export const viewport: Viewport = {
@@ -43,7 +44,7 @@ export default async function RootLayout({
     const {
         data: { user },
     } = await supabase.auth.getUser();
-    console.log("LAYOUT USER:", user);
+
     const displayName =
         user?.user_metadata?.full_name ??
         user?.user_metadata?.name ??
@@ -61,16 +62,14 @@ export default async function RootLayout({
             data-scroll-behavior="smooth"
             className={`dark ${teko.variable} ${geistMono.variable} ${inter.variable}`}
         >
-            <body className="bg-[#0A0B0E] text-slate-100 antialiased min-h-screen pb-12">
-                <div className="mx-aato max-w-md px-5 py-6">
-                    {/* Global Shared Header */}
+            <body className="min-h-screen bg-[#0A0B0E] pb-12 text-slate-100 antialiased">
+                <div className="mx-auto max-w-md px-5 py-6">
                     <Header
                         isLoggedIn={!!user}
                         displayName={displayName}
                         avatarUrl={avatarUrl}
                     />
 
-                    {/* Page Content */}
                     <main>{children}</main>
                 </div>
             </body>

@@ -21,6 +21,10 @@ type GamePhase =
 
 type Mode = "normal" | "extreme";
 
+type GameMode =
+    | "daily"
+    | "practice";
+
 type RoundResult = {
     target: number;
     actual: number;
@@ -59,56 +63,76 @@ type Submission = {
 type GameContainerProps = {
     targets: number[];
     mode: Mode;
-    submission: Submission;
+    gameMode?: GameMode;
+    submission?: Submission;
 };
 
 export default function GameContainer({
     targets,
     mode,
+    gameMode = "daily",
     submission,
 }: GameContainerProps) {
     const [phase, setPhase] = useState<GamePhase>(
-        submission.completed ? "finished" : "waiting"
+        gameMode === "practice"
+            ? "waiting"
+            : submission?.completed
+                ? "finished"
+                : "waiting"
     );
 
-    const [currentRound, setCurrentRound] = useState(
-        Math.max(0, (submission.current_round ?? 1) - 1)
-    );
+    const [currentRound, setCurrentRound] =
+        useState(
+            gameMode === "practice"
+                ? 0
+                : Math.max(
+                    0,
+                    (submission?.current_round ?? 1) - 1
+                )
+        );
 
-    const [results, setResults] = useState<RoundResult[]>(() => {
-        const restored: RoundResult[] = [];
-
-        for (let i = 1; i <= 5; i++) {
-            const actual =
-                submission[
-                `round_${i}_actual` as keyof Submission
-                ];
-
-            const error =
-                submission[
-                `round_${i}_error` as keyof Submission
-                ];
-
-            if (
-                typeof actual === "number" &&
-                typeof error === "number"
-            ) {
-                restored.push({
-                    target: targets[i - 1],
-                    actual,
-                    error,
-                });
+    const [results, setResults] =
+        useState<RoundResult[]>(() => {
+            if (gameMode === "practice") {
+                return [];
             }
-        }
 
-        return restored;
-    });
+            const restored: RoundResult[] = [];
 
-    const [actualTime, setActualTime] = useState(0);
+            for (let i = 1; i <= 5; i++) {
+                const actual =
+                    submission?.[
+                    `round_${i}_actual` as keyof Submission
+                    ];
 
-    const [isRunning, setIsRunning] = useState(false);
+                const error =
+                    submission?.[
+                    `round_${i}_error` as keyof Submission
+                    ];
 
-    const [saving, setSaving] = useState(false);
+                if (
+                    typeof actual === "number" &&
+                    typeof error === "number"
+                ) {
+                    restored.push({
+                        target: targets[i - 1],
+                        actual,
+                        error,
+                    });
+                }
+            }
+
+            return restored;
+        });
+
+    const [actualTime, setActualTime] =
+        useState(0);
+
+    const [isRunning, setIsRunning] =
+        useState(false);
+
+    const [saving, setSaving] =
+        useState(false);
 
     const [startTimestamp, setStartTimestamp] =
         useState<number | null>(null);
@@ -116,28 +140,30 @@ export default function GameContainer({
     const target = targets[currentRound];
 
     const handleButtonPress = async () => {
-        // START TIMER
         if (!isRunning) {
             setStartTimestamp(performance.now());
             setIsRunning(true);
             return;
         }
 
-        // STOP TIMER
         if (!startTimestamp) return;
 
         const elapsed =
-            (performance.now() - startTimestamp) / 1000;
+            (performance.now() - startTimestamp) /
+            1000;
 
         const roundedActual = Number(
             elapsed.toFixed(2)
         );
 
         const error = Number(
-            Math.abs(target - roundedActual).toFixed(2)
+            Math.abs(
+                target - roundedActual
+            ).toFixed(2)
         );
 
-        const roundNumber = currentRound + 1;
+        const roundNumber =
+            currentRound + 1;
 
         const newResult: RoundResult = {
             target,
@@ -153,34 +179,53 @@ export default function GameContainer({
         try {
             setSaving(true);
 
-            await saveRoundResult(
-                submission.id,
-                roundNumber,
-                roundedActual,
-                error
-            );
-
-            if (roundNumber === targets.length) {
-                const finalTotalError = Number(
-                    updatedResults
-                        .reduce(
-                            (sum, result) =>
-                                sum + result.error,
-                            0
-                        )
-                        .toFixed(2)
-                );
-
-                await completeSubmission(
+            if (
+                gameMode === "daily" &&
+                submission
+            ) {
+                await saveRoundResult(
                     submission.id,
-                    finalTotalError
+                    roundNumber,
+                    roundedActual,
+                    error
                 );
+
+                if (
+                    roundNumber ===
+                    targets.length
+                ) {
+                    const finalTotalError =
+                        Number(
+                            updatedResults
+                                .reduce(
+                                    (
+                                        sum,
+                                        result
+                                    ) =>
+                                        sum +
+                                        result.error,
+                                    0
+                                )
+                                .toFixed(2)
+                        );
+
+                    await completeSubmission(
+                        submission.id,
+                        finalTotalError
+                    );
+                }
             }
 
-            setActualTime(roundedActual);
-            setResults(updatedResults);
+            setActualTime(
+                roundedActual
+            );
+
+            setResults(
+                updatedResults
+            );
 
             setIsRunning(false);
+
             setPhase("result");
         } catch (err) {
             console.error(
@@ -193,9 +238,12 @@ export default function GameContainer({
     };
 
     const nextRound = () => {
-        const nextIndex = currentRound + 1;
+        const nextIndex =
+            currentRound + 1;
 
-        if (nextIndex >= targets.length) {
+        if (
+            nextIndex >= targets.length
+        ) {
             setPhase("finished");
             return;
         }
@@ -226,17 +274,27 @@ export default function GameContainer({
             {phase !== "finished" && (
                 <>
                     <TargetHeader
-                        currentRound={currentRound}
-                        totalRounds={targets.length}
+                        currentRound={
+                            currentRound
+                        }
+                        totalRounds={
+                            targets.length
+                        }
                         mode={mode}
                     />
 
                     <ProgressDots
-                        currentRound={currentRound}
-                        totalRounds={targets.length}
+                        currentRound={
+                            currentRound
+                        }
+                        totalRounds={
+                            targets.length
+                        }
                     />
 
-                    <TargetDisplay target={target} />
+                    <TargetDisplay
+                        target={target}
+                    />
                 </>
             )}
 
@@ -248,11 +306,13 @@ export default function GameContainer({
                             : "Tap the button to start the timer."}
                     </p>
 
-                    {saving && (
-                        <p className="text-green-400">
-                            Saving round...
-                        </p>
-                    )}
+                    {saving &&
+                        gameMode ===
+                        "daily" && (
+                            <p className="text-green-400">
+                                Saving round...
+                            </p>
+                        )}
 
                     <ActionButton
                         label={
@@ -262,9 +322,13 @@ export default function GameContainer({
                                     ? "STOP"
                                     : "START"
                         }
-                        isRunning={isRunning}
+                        isRunning={
+                            isRunning
+                        }
                         disabled={saving}
-                        onClick={handleButtonPress}
+                        onClick={
+                            handleButtonPress
+                        }
                     />
                 </div>
             )}
@@ -274,16 +338,23 @@ export default function GameContainer({
                     <ResultReveal
                         target={target}
                         actual={actualTime}
-                        error={Math.abs(target - actualTime)}
+                        error={Math.abs(
+                            target -
+                            actualTime
+                        )}
                     />
 
                     <ActionButton
                         label={
-                            currentRound === targets.length - 1
+                            currentRound ===
+                                targets.length -
+                                1
                                 ? "RESULTS"
                                 : "NEXT"
                         }
-                        onClick={nextRound}
+                        onClick={
+                            nextRound
+                        }
                     />
                 </div>
             )}
@@ -291,7 +362,9 @@ export default function GameContainer({
             {phase === "finished" && (
                 <FinalResults
                     results={results}
-                    totalError={totalError}
+                    totalError={
+                        totalError
+                    }
                     mode={mode}
                 />
             )}

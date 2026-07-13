@@ -8,17 +8,13 @@ export default function TargetDisplay({
     target,
 }: TargetDisplayProps) {
     return (
-        <div className="text-center">
-            <p className="mb-3 text-sm uppercase tracking-[0.25em] text-zinc-500">
-                Target
-            </p>
-
-            <h1 className="text-7xl font-black text-white">
+        <div className="text-center py-1">
+            <h1 className="text-5xl sm:text-6xl font-black text-white leading-none">
                 {target.toFixed(2)}
             </h1>
 
-            <p className="mt-2 text-2xl font-semibold text-green-400">
-                seconds
+            <p className="mt-1 text-xs font-bold tracking-[0.35em] text-zinc-500 uppercase">
+                TARGET
             </p>
         </div>
     );

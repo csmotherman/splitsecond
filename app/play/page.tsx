@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import GameContainer from "@/components/game/GameContainer";
@@ -44,104 +44,74 @@ type DailySubmission = {
     started_at: string | null;
 };
 
-export default function PlayPage() {
+// 1. Separate the content that uses search params
+function PlayPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const mode: Mode =
-        searchParams.get("mode") === "extreme"
-            ? "extreme"
-            : "normal";
+    const mode: Mode = searchParams.get("mode") === "extreme" ? "extreme" : "normal";
 
-    const [challenge, setChallenge] =
-        useState<DailyChallenge | null>(null);
-
-    const [submission, setSubmission] =
-        useState<DailySubmission | null>(null);
-
-    const [loading, setLoading] = useState(true);
-    const [errorMessage, setErrorMessage] =
-        useState<string | null>(null);
+    // 2. Consolidate state to prevent unnecessary re-renders
+    const [gameState, setGameState] = useState<{
+        challenge: DailyChallenge | null;
+        submission: DailySubmission | null;
+        loading: boolean;
+        error: string | null;
+    }>({
+        challenge: null,
+        submission: null,
+        loading: true,
+        error: null,
+    });
 
     useEffect(() => {
-        let cancelled = false;
+        // 3. Use standard AbortController for cleanup
+        const controller = new AbortController();
 
         async function loadGame() {
             try {
-                setLoading(true);
-                setErrorMessage(null);
-
                 const {
                     data: { user },
                     error: authError,
                 } = await supabase.auth.getUser();
 
-                if (authError) {
-                    throw authError;
-                }
+                if (authError) throw authError;
 
                 if (!user) {
                     router.replace("/login");
                     return;
                 }
 
-                const challengeData =
-                    (await getTodaysChallenge(mode)) as DailyChallenge;
-                console.log("CHALLENGE:", challengeData);
+                const challengeData = (await getTodaysChallenge(mode)) as DailyChallenge;
+
                 if (!challengeData) {
-                    throw new Error(
-                        `No ${mode} challenge is available for today.`
-                    );
+                    throw new Error(`No ${mode} challenge is available for today.`);
                 }
 
-                if (
-                    !Array.isArray(challengeData.targets) ||
-                    challengeData.targets.length !== 5
-                ) {
-                    throw new Error(
-                        "Today's challenge does not contain five valid targets."
-                    );
+                // 4. Streamlined validation logic
+                const isValidTarget = (t: unknown) => typeof t === "number" && Number.isFinite(t) && t > 0;
+                if (!Array.isArray(challengeData.targets) || challengeData.targets.length !== 5 || !challengeData.targets.every(isValidTarget)) {
+                    throw new Error("Today's challenge contains invalid or missing targets.");
                 }
 
-                const targetsAreValid = challengeData.targets.every(
-                    (target) =>
-                        typeof target === "number" &&
-                        Number.isFinite(target) &&
-                        target > 0
-                );
+                const submissionData = (await getOrCreateSubmission(challengeData.id)) as DailySubmission;
 
-                if (!targetsAreValid) {
-                    throw new Error(
-                        "Today's challenge contains invalid target values."
-                    );
+                if (!controller.signal.aborted) {
+                    setGameState({
+                        challenge: challengeData,
+                        submission: submissionData,
+                        loading: false,
+                        error: null,
+                    });
                 }
-
-                const submissionData =
-                    (await getOrCreateSubmission(
-                        challengeData.id
-                    )) as DailySubmission;
-
-                if (cancelled) {
-                    return;
-                }
-
-                setChallenge(challengeData);
-                setSubmission(submissionData);
             } catch (error) {
-                if (cancelled) {
-                    return;
-                }
-
-                console.error("Unable to load game:", error);
-
-                setErrorMessage(
-                    error instanceof Error
-                        ? error.message
-                        : "Unable to load today's challenge."
-                );
-            } finally {
-                if (!cancelled) {
-                    setLoading(false);
+                if (!controller.signal.aborted) {
+                    console.error("Unable to load game:", error);
+                    setGameState((prev) => ({
+                        ...prev,
+                        loading: false,
+                        error: error instanceof Error ? error.message : "Unable to load today's challenge.",
+                    }));
                 }
             }
         }
@@ -149,31 +119,31 @@ export default function PlayPage() {
         void loadGame();
 
         return () => {
-            cancelled = true;
+            controller.abort(); // Cleanup on unmount
         };
     }, [mode, router]);
 
-    if (loading) {
+    if (gameState.loading) {
         return (
-            <main className="flex min-h-screen items-center justify-center bg-black px-4 text-white">
-                <p className="text-zinc-400">
+            // Removed bg-black and text-white
+            <main className="flex min-h-screen items-center justify-center px-4">
+                <p className="text-zinc-500 dark:text-zinc-400">
                     Loading today&apos;s challenge...
                 </p>
             </main>
         );
     }
 
-    if (errorMessage || !challenge || !submission) {
+    if (gameState.error || !gameState.challenge || !gameState.submission) {
         return (
-            <main className="flex min-h-screen items-center justify-center bg-black px-4 text-white">
+            <main className="flex min-h-screen items-center justify-center px-4">
                 <div className="w-full max-w-md text-center">
                     <h1 className="text-2xl font-bold">
                         Challenge unavailable
                     </h1>
 
-                    <p className="mt-3 text-zinc-400">
-                        {errorMessage ??
-                            "Today's challenge could not be loaded."}
+                    <p className="mt-3 text-zinc-500 dark:text-zinc-400">
+                        {gameState.error ?? "Today's challenge could not be loaded."}
                     </p>
 
                     <button
@@ -189,12 +159,25 @@ export default function PlayPage() {
     }
 
     return (
-        <main className="min-h-screen bg-black text-white">
+        <main className="min-h-screen">
             <GameContainer
                 mode={mode}
-                targets={challenge.targets}
-                submission={submission}
+                targets={gameState.challenge.targets}
+                submission={gameState.submission}
             />
         </main>
+    );
+}
+
+// 5. Wrap the export in a Suspense boundary for Next.js App Router compliance
+export default function PlayPage() {
+    return (
+        <Suspense fallback={
+            <main className="flex min-h-screen items-center justify-center px-4">
+                <p className="text-zinc-500 dark:text-zinc-400">Loading...</p>
+            </main>
+        }>
+            <PlayPageContent />
+        </Suspense>
     );
 }

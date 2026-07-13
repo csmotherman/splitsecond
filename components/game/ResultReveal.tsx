@@ -12,52 +12,98 @@ export default function ResultReveal({
     error,
 }: ResultRevealProps) {
     const getRating = () => {
-        if (error <= 0.05) return "Perfect";
-        if (error <= 0.15) return "Excellent";
-        if (error <= 0.30) return "Great";
-        if (error <= 0.50) return "Good";
-        return "Miss";
+        if (error <= 0.01) {
+            return {
+                label: "BULLSEYE",
+                color: "text-yellow-400",
+                glow: "drop-shadow-[0_0_25px_rgba(250,204,21,.85)]",
+            };
+        }
+
+        if (error <= 0.05) {
+            return {
+                label: "EXCELLENT",
+                color: "text-green-400",
+                glow: "drop-shadow-[0_0_25px_rgba(74,222,128,.85)]",
+            };
+        }
+
+        if (error <= 0.15) {
+            return {
+                label: "GOOD",
+                color: "text-cyan-400",
+                glow: "drop-shadow-[0_0_25px_rgba(34,211,238,.85)]",
+            };
+        }
+
+        if (error <= 0.3) {
+            return {
+                label: "OFF",
+                color: "text-orange-400",
+                glow: "drop-shadow-[0_0_25px_rgba(251,146,60,.85)]",
+            };
+        }
+
+        return {
+            label: "MISS",
+            color: "text-red-400",
+            glow: "drop-shadow-[0_0_25px_rgba(248,113,113,.85)]",
+        };
     };
 
     const rating = getRating();
 
     return (
-        <div className="rounded-3xl border border-white/10 bg-zinc-900 p-6 shadow-xl">
-            <div className="text-center">
-                <p className="text-sm uppercase tracking-wider text-zinc-400">
-                    Round Complete
-                </p>
+        <div className="text-center">
+            <p className="text-[10px] uppercase tracking-[0.35em] text-zinc-500">
+                YOUR TIME
+            </p>
 
-                <h2 className="mt-2 text-3xl font-bold text-white">
-                    {rating}
-                </h2>
+            <div
+                className={`
+                    mt-2
+                    text-7xl
+                    sm:text-8xl
+                    font-black
+                    tracking-tighter
+                    tabular-nums
+                    text-green-400
+                    drop-shadow-[0_0_30px_rgba(74,222,128,.9)]
+                `}
+            >
+                {actual.toFixed(2)}
             </div>
 
-            <div className="mt-8 space-y-4">
-                <div className="flex items-center justify-between rounded-2xl bg-zinc-800/50 px-4 py-4">
-                    <span className="text-zinc-400">Target</span>
+            <p className="mt-1 text-sm uppercase tracking-[0.3em] text-zinc-600">
+                SECONDS
+            </p>
 
-                    <span className="text-xl font-bold text-white">
-                        {target.toFixed(2)}s
-                    </span>
-                </div>
-
-                <div className="flex items-center justify-between rounded-2xl bg-zinc-800/50 px-4 py-4">
-                    <span className="text-zinc-400">Your Time</span>
-
-                    <span className="text-xl font-bold text-white">
-                        {actual.toFixed(2)}s
-                    </span>
-                </div>
-
-                <div className="flex items-center justify-between rounded-2xl bg-green-500/10 px-4 py-4 border border-green-500/20">
-                    <span className="text-green-400">Error</span>
-
-                    <span className="text-2xl font-bold text-green-400">
-                        {error.toFixed(2)}s
-                    </span>
-                </div>
+            <div
+                className={`
+                    mt-5
+                    text-3xl
+                    font-black
+                    tabular-nums
+                    ${rating.color}
+                    ${rating.glow}
+                `}
+            >
+                +{error.toFixed(2)}
             </div>
+
+            <div
+                className={`
+                    mt-2
+                    text-lg
+                    font-black
+                    tracking-[0.2em]
+                    uppercase
+                    ${rating.color}
+                `}
+            >
+                {rating.label}
+            </div>
+
         </div>
     );
 }
