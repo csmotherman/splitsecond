@@ -71,13 +71,10 @@ function PlayPageContent() {
         async function loadGame() {
             try {
                 const {
-                    data: { user },
-                    error: authError,
-                } = await supabase.auth.getUser();
+                    data: { session },
+                } = await supabase.auth.getSession();
 
-                if (authError) throw authError;
-
-                if (!user) {
+                if (!session) {
                     router.replace("/login");
                     return;
                 }
