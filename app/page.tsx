@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import LeaderboardPreview from "@/components/leaderboard/LeaderboardPreview";
+import { getDailyLeaderboard } from "@/lib/game/leaderboard";
 import { Play, BookOpen, Zap } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 
@@ -12,28 +13,25 @@ export default function HomePage() {
 
     const [showHowTo, setShowHowTo] = useState(false);
 
-    const leaderboardEntries = [
-        {
-            username: "Carter",
-            totalError: 0.084,
-        },
-        {
-            username: "Abbey",
-            totalError: 0.102,
-        },
-        {
-            username: "Tyler",
-            totalError: 0.118,
-        },
-        {
-            username: "Jordan",
-            totalError: 0.141,
-        },
-        {
-            username: "Sarah",
-            totalError: 0.157,
-        },
-    ];
+    const [leaderboardEntries, setLeaderboardEntries] =
+        useState<
+            {
+                rank: number;
+                username: string;
+                totalError: number;
+            }[]
+        >([]);
+
+    useEffect(() => {
+        async function loadLeaderboard() {
+            const entries =
+                await getDailyLeaderboard();
+
+            setLeaderboardEntries(entries);
+        }
+
+        loadLeaderboard();
+    }, []);
 
     async function handlePlay() {
         const {
@@ -75,7 +73,8 @@ export default function HomePage() {
                 </h2>
 
                 <p className="mt-1 text-sm leading-relaxed text-slate-400">
-                    Can you accurately count time in your head down to the exact millisecond?
+                    Can you accurately count time in your head
+                    down to the exact millisecond?
                 </p>
 
                 <button
@@ -125,17 +124,21 @@ export default function HomePage() {
                         </div>
 
                         <p className="mt-5 text-center text-sm text-slate-300">
-                            Tap START, then STOP when you think the target time has passed.
+                            Tap START, then STOP when you think
+                            the target time has passed.
                         </p>
 
                         <p className="mt-2 text-center text-sm text-slate-400">
-                            Complete 5 rounds. Lowest total error wins.
+                            Complete 5 rounds. Lowest total error
+                            wins.
                         </p>
 
                         <div className="mt-6 flex gap-3">
                             <button
                                 onClick={() =>
-                                    router.push("/how-to-play")
+                                    router.push(
+                                        "/how-to-play"
+                                    )
                                 }
                                 className="flex-1 rounded-xl border border-white/10 py-3 text-white"
                             >
