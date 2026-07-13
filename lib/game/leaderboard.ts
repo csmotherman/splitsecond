@@ -6,15 +6,28 @@ export type LeaderboardEntry = {
     totalError: number;
 };
 
-export async function getDailyLeaderboard() {
-    const { data: challenge } = await supabase
+export async function getDailyLeaderboard(): Promise<
+    LeaderboardEntry[]
+> {
+    const {
+        data: challenge,
+        error: challengeError,
+    } = await supabase
         .from("daily_challenges")
-        .select("id")
+        .select("id, challenge_date")
         .eq("status", "active")
         .eq("mode", "normal")
-        .single();
+        .order("challenge_date", {
+            ascending: false,
+        })
+        .limit(1)
+        .maybeSingle();
 
-    if (!challenge) {
+    if (challengeError || !challenge) {
+        console.error(
+            "Challenge lookup failed:",
+            challengeError
+        );
         return [];
     }
 
@@ -33,7 +46,10 @@ export async function getDailyLeaderboard() {
         });
 
     if (error) {
-        console.error(error);
+        console.error(
+            "Leaderboard query failed:",
+            error
+        );
         return [];
     }
 
@@ -41,10 +57,11 @@ export async function getDailyLeaderboard() {
         data?.map((row: any, index: number) => ({
             rank: index + 1,
             username:
-                row.profiles?.username ??
+                row.profiles?.[0]?.username ??
                 "Anonymous",
-            totalError:
-                Number(row.total_error),
+            totalError: Number(
+                row.total_error
+            ),
         })) ?? []
     );
 }
