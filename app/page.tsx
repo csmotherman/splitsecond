@@ -1,7 +1,37 @@
+"use client";
 import Link from "next/link";
 import { Play, Dumbbell, BookOpen, Zap } from "lucide-react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase/client";
+
 
 export default function HomePage() {
+    const router = useRouter();
+
+    const [showHowTo, setShowHowTo] = useState(false);
+    async function handlePlay() {
+        const {
+            data: { session },
+        } = await supabase.auth.getSession();
+
+        if (!session) {
+            router.push("/login");
+            return;
+        }
+
+        const hasSeenHowTo =
+            localStorage.getItem(
+                "splitsecond-how-to-play-seen"
+            ) === "true";
+
+        if (!hasSeenHowTo) {
+            setShowHowTo(true);
+            return;
+        }
+
+        router.push("/play");
+    }
     return (
         <div className="relative">
             {/* Background Radial Glow */}
@@ -22,13 +52,13 @@ export default function HomePage() {
                     Can you accurately count time in your head down to the exact millisecond?
                 </p>
 
-                <Link
-                    href="/play"
+                <button
+                    onClick={handlePlay}
                     className="group mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#39FF14] py-4 font-mono text-xs font-black uppercase tracking-wider text-black shadow-[0_0_20px_rgba(57,255,20,0.25)] transition-all duration-300 hover:bg-[#32e612] hover:shadow-[0_0_25px_rgba(57,255,20,0.45)] active:scale-[0.98]"
                 >
                     <Play className="h-4 w-4 fill-current transition-transform group-hover:translate-x-0.5" />
                     <span>Play Today's Challenge</span>
-                </Link>
+                </button>
             </section>
 
             {/* Secondary Navigation */}
@@ -53,6 +83,60 @@ export default function HomePage() {
                     </span>
                 </Link>
             </nav>
+            {showHowTo && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-5">
+                    <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-[#12151E] p-6">
+                        <h2 className="text-center font-college text-3xl text-white">
+                            HOW TO PLAY
+                        </h2>
+
+                        <div className="mt-5 text-center">
+                            <div className="text-xs uppercase tracking-widest text-slate-500">
+                                TARGET
+                            </div>
+
+                            <div className="font-college text-6xl text-[#39FF14]">
+                                3.27
+                            </div>
+                        </div>
+
+                        <p className="mt-5 text-center text-sm text-slate-300">
+                            Tap START, then STOP when you think
+                            the target time has passed.
+                        </p>
+
+                        <p className="mt-2 text-center text-sm text-slate-400">
+                            Complete 5 rounds. Lowest total
+                            error wins.
+                        </p>
+
+                        <div className="mt-6 flex gap-3">
+                            <button
+                                onClick={() =>
+                                    router.push("/how-to-play")
+                                }
+                                className="flex-1 rounded-xl border border-white/10 py-3 text-white"
+                            >
+                                View More
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    localStorage.setItem(
+                                        "splitsecond-how-to-play-seen",
+                                        "true"
+                                    );
+
+                                    router.push("/play");
+                                }}
+                                className="flex-1 rounded-xl bg-[#39FF14] py-3 font-bold text-black"
+                            >
+                                Let's Go
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -19,11 +19,64 @@ const inter = Inter({
     subsets: ["latin"],
     variable: "--font-sans",
 });
-
 export const metadata: Metadata = {
-    title: "SplitSecond | Every Millisecond Matters",
+    metadataBase: new URL("https://splitsecond.gg"),
+
+    title: {
+        default: "SplitSecond | Every Millisecond Matters",
+        template: "%s | SplitSecond",
+    },
+
     description:
         "Stop the hidden timer as close as possible to five daily target times.",
+
+    applicationName: "SplitSecond",
+
+    openGraph: {
+        title: "SplitSecond | Every Millisecond Matters",
+        description:
+            "Stop the hidden timer as close as possible to five daily target times.",
+        url: "https://splitsecond.gg",
+        siteName: "SplitSecond",
+        locale: "en_US",
+        type: "website",
+        images: [
+            {
+                url: "/opengraph-image.png",
+                width: 1200,
+                height: 630,
+                alt: "SplitSecond Daily Timer Challenge",
+            },
+        ],
+    },
+
+    twitter: {
+        card: "summary_large_image",
+        title: "SplitSecond | Every Millisecond Matters",
+        description:
+            "Stop the hidden timer as close as possible to five daily target times.",
+        images: ["/twitter-image.png"],
+    },
+
+    icons: {
+        icon: [
+            {
+                url: "/favicon.ico",
+            },
+            {
+                url: "/icon.png",
+                sizes: "512x512",
+                type: "image/png",
+            },
+        ],
+        apple: [
+            {
+                url: "/apple-icon.png",
+                sizes: "180x180",
+                type: "image/png",
+            },
+        ],
+    },
 };
 
 export const viewport: Viewport = {
