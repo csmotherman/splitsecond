@@ -1,15 +1,40 @@
 "use client";
+
 import Link from "next/link";
-import { Play, Dumbbell, BookOpen, Zap } from "lucide-react";
+import LeaderboardPreview from "@/components/leaderboard/LeaderboardPreview";
+import { Play, BookOpen, Zap } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
-
 
 export default function HomePage() {
     const router = useRouter();
 
     const [showHowTo, setShowHowTo] = useState(false);
+
+    const leaderboardEntries = [
+        {
+            username: "Carter",
+            totalError: 0.084,
+        },
+        {
+            username: "Abbey",
+            totalError: 0.102,
+        },
+        {
+            username: "Tyler",
+            totalError: 0.118,
+        },
+        {
+            username: "Jordan",
+            totalError: 0.141,
+        },
+        {
+            username: "Sarah",
+            totalError: 0.157,
+        },
+    ];
+
     async function handlePlay() {
         const {
             data: { session },
@@ -32,19 +57,20 @@ export default function HomePage() {
 
         router.push("/play");
     }
+
     return (
         <div className="relative">
-            {/* Background Radial Glow */}
+            {/* Background Glow */}
             <div className="pointer-events-none fixed left-1/2 top-0 -z-10 h-[350px] w-full max-w-lg -translate-x-1/2 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#39FF14]/10 via-transparent to-transparent blur-3xl" />
 
-            {/* Hero Section */}
+            {/* Hero */}
             <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-white/[0.01] p-6 backdrop-blur-xl">
                 <div className="inline-flex items-center gap-1.5 rounded-full border border-[#39FF14]/20 bg-[#39FF14]/10 px-3 py-1 font-mono text-[10px] font-semibold text-[#39FF14]">
                     <Zap className="h-3 w-3 fill-current" />
                     <span>TEST YOUR INTERNAL CLOCK</span>
                 </div>
 
-                <h2 className="mt-4 font-college text-4xl text-white tracking-wider">
+                <h2 className="mt-4 font-college text-4xl tracking-wider text-white">
                     DAILY TIMER CHALLENGE
                 </h2>
 
@@ -61,28 +87,26 @@ export default function HomePage() {
                 </button>
             </section>
 
-            {/* Secondary Navigation */}
-            <nav className="mt-4 grid grid-cols-2 gap-3">
-                <Link
-                    href="/practice"
-                    className="group flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur-md transition-all duration-200 hover:border-white/20 hover:bg-white/[0.05] active:scale-95"
-                >
-                    <Dumbbell className="h-5 w-5 text-[#39FF14] transition-transform group-hover:scale-110" />
-                    <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-200">
-                        Practice Mode
-                    </span>
-                </Link>
+            {/* Leaderboard */}
+            <LeaderboardPreview
+                entries={leaderboardEntries}
+            />
 
+            {/* How To Play */}
+            <nav className="mt-4">
                 <Link
                     href="/how-to-play"
                     className="group flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur-md transition-all duration-200 hover:border-white/20 hover:bg-white/[0.05] active:scale-95"
                 >
                     <BookOpen className="h-5 w-5 text-slate-400 transition-transform group-hover:scale-110 group-hover:text-white" />
+
                     <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-200">
                         How To Play
                     </span>
                 </Link>
             </nav>
+
+            {/* How To Play Modal */}
             {showHowTo && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-5">
                     <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-[#12151E] p-6">
@@ -101,13 +125,11 @@ export default function HomePage() {
                         </div>
 
                         <p className="mt-5 text-center text-sm text-slate-300">
-                            Tap START, then STOP when you think
-                            the target time has passed.
+                            Tap START, then STOP when you think the target time has passed.
                         </p>
 
                         <p className="mt-2 text-center text-sm text-slate-400">
-                            Complete 5 rounds. Lowest total
-                            error wins.
+                            Complete 5 rounds. Lowest total error wins.
                         </p>
 
                         <div className="mt-6 flex gap-3">
