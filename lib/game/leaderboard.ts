@@ -57,7 +57,7 @@ export async function getDailyLeaderboard(): Promise<
         data?.map((row: any, index: number) => ({
             rank: index + 1,
             username:
-                row.profiles?.[0]?.username ??
+                row.profiles?.username ??
                 "Anonymous",
             totalError: Number(
                 row.total_error
