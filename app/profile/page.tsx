@@ -51,20 +51,27 @@ export default async function ProfilePage() {
     ] = await Promise.all([
         supabase
             .from("profiles")
-            .select("current_streak, longest_streak")
+            .select(
+                "username, current_streak, longest_streak"
+            )
             .eq("id", user.id)
             .single(),
 
         supabase
             .from("daily_submissions")
-            .select("*", { count: "exact", head: true })
+            .select("*", {
+                count: "exact",
+                head: true,
+            })
             .eq("user_id", user.id),
 
         supabase
             .from("daily_submissions")
             .select("total_error")
             .eq("user_id", user.id)
-            .order("total_error", { ascending: true })
+            .order("total_error", {
+                ascending: true,
+            })
             .limit(1)
             .maybeSingle(),
 
@@ -75,16 +82,25 @@ export default async function ProfilePage() {
 
         supabase
             .from("attempts")
-            .select("*", { count: "exact", head: true })
+            .select("*", {
+                count: "exact",
+                head: true,
+            })
             .eq("user_id", user.id)
             .eq("perfect_timer", true),
 
         supabase
             .from("daily_submissions")
-            .select("*", { count: "exact", head: true })
+            .select("*", {
+                count: "exact",
+                head: true,
+            })
             .eq("user_id", user.id)
             .eq("daily_rank", 1),
     ]);
+
+    const username =
+        profileResult.data?.username ?? null;
 
     const currentStreak =
         profileResult.data?.current_streak ?? 0;
@@ -108,9 +124,11 @@ export default async function ProfilePage() {
         avgErrorResult.data?.length
             ? (
                 avgErrorResult.data.reduce(
-                    (sum, row) => sum + Number(row.total_error),
+                    (sum, row) =>
+                        sum + Number(row.total_error),
                     0
-                ) / avgErrorResult.data.length
+                ) /
+                avgErrorResult.data.length
             ).toFixed(3)
             : null;
 
@@ -138,6 +156,22 @@ export default async function ProfilePage() {
                     <p className="text-sm text-slate-400">
                         {email}
                     </p>
+
+                    <div className="mt-5 w-full rounded-2xl border border-[#39FF14]/20 bg-[#39FF14]/10 p-4">
+                        <div className="text-xs font-bold uppercase tracking-[0.2em] text-[#39FF14]">
+                            Username
+                        </div>
+
+                        <div className="mt-1 font-mono text-2xl font-black text-white">
+                            @{username ?? "not-set"}
+                        </div>
+
+                        <p className="mt-2 text-xs text-slate-400">
+                            This is how you'll appear on
+                            leaderboards, rankings, and
+                            future competitive features.
+                        </p>
+                    </div>
                 </div>
             </section>
 
@@ -177,7 +211,9 @@ export default async function ProfilePage() {
                         label="Best Error"
                         value={
                             bestError !== null
-                                ? Number(bestError).toFixed(3)
+                                ? Number(
+                                    bestError
+                                ).toFixed(3)
                                 : "-"
                         }
                     />

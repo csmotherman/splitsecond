@@ -10,6 +10,12 @@ export async function GET(request: Request) {
     const next =
         requestUrl.searchParams.get("next") ?? "/";
 
+    const safeNext =
+        next.startsWith("/") &&
+            !next.startsWith("//")
+            ? next
+            : "/";
+
     if (!code) {
         return NextResponse.redirect(
             new URL(
@@ -46,7 +52,10 @@ export async function GET(request: Request) {
 
     if (!user) {
         return NextResponse.redirect(
-            new URL("/login", requestUrl.origin)
+            new URL(
+                "/login",
+                requestUrl.origin
+            )
         );
     }
 
@@ -57,19 +66,20 @@ export async function GET(request: Request) {
         .single();
 
     if (!profile?.username) {
+        const onboardingUrl = new URL(
+            "/onboarding",
+            requestUrl.origin
+        );
+
+        onboardingUrl.searchParams.set(
+            "next",
+            safeNext
+        );
+
         return NextResponse.redirect(
-            new URL(
-                "/onboarding",
-                requestUrl.origin
-            )
+            onboardingUrl
         );
     }
-
-    const safeNext =
-        next.startsWith("/") &&
-            !next.startsWith("//")
-            ? next
-            : "/";
 
     return NextResponse.redirect(
         new URL(
