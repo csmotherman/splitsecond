@@ -169,7 +169,6 @@ export default function DuelLobby({
                     duel.id
                 );
 
-                window.location.reload();
             } catch (error) {
                 console.error(
                     error
@@ -287,8 +286,8 @@ export default function DuelLobby({
 
                                     <div
                                         className={`rounded-xl px-3 py-1 text-sm font-black ${player.ready
-                                                ? "bg-green-500/20 text-green-400"
-                                                : "bg-yellow-500/20 text-yellow-400"
+                                            ? "bg-green-500/20 text-green-400"
+                                            : "bg-yellow-500/20 text-yellow-400"
                                             }`}
                                     >
                                         {player.ready

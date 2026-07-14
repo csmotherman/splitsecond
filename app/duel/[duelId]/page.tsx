@@ -55,11 +55,6 @@ export default function DuelPage() {
     useEffect(() => {
         async function loadData() {
             try {
-                console.log(
-                    "Loading duel:",
-                    duelId
-                );
-
                 const {
                     data: duelData,
                     error: duelError,
@@ -75,7 +70,6 @@ export default function DuelPage() {
                         duelError
                     );
 
-                    setLoading(false);
                     return;
                 }
 
@@ -119,6 +113,17 @@ export default function DuelPage() {
         }
 
         loadData();
+
+        const interval =
+            setInterval(
+                loadData,
+                1000
+            );
+
+        return () =>
+            clearInterval(
+                interval
+            );
     }, [duelId]);
 
     if (loading) {
