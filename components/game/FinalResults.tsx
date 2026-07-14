@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
-import { Share2, Trophy, Check, Crown, Target } from "lucide-react";
+import { Trophy, Crown, Target } from "lucide-react";
+import Share from "./Share";
 
 type RoundResult = {
     target: number;
@@ -36,7 +37,7 @@ export default function FinalResults({
     mode,
     onViewLeaderboard,
 }: FinalResultsProps) {
-    const [copied, setCopied] = useState(false);
+    
 
     // Fine-tuned 16-tier grade mapping
     const getGrade = (): GradeConfig => {
@@ -261,82 +262,9 @@ export default function FinalResults({
         return () => clearInterval(interval);
     }, [resultGrade.triggerConfetti]);
 
-    const getShareEmoji = (error: number) => {
-        if (error <= 0.02) return "🎯";
-        if (error <= 0.05) return "🟢";
-        if (error <= 0.1) return "🟡";
-        if (error <= 0.2) return "🟠";
-        return "🔴";
-    };
+    
 
-    const handleShare = async () => {
-        const modeLabel =
-            mode === "normal" ? "NORMAL" : "EXTREME";
-
-        const roundLines = results
-            .slice(0, 5)
-            .map((result, index) => {
-                const emoji = getShareEmoji(result.error);
-
-                return `${emoji} R${index + 1}  +${result.error.toFixed(3)}s`;
-            })
-            .join("\n");
-
-        const shareText = [
-            "SPLITSECOND",
-            "",
-            roundLines,
-            "",
-            `⏱️ TOTAL  +${totalError.toFixed(3)}s`,
-            `${resultGrade.emoji} GRADE  ${resultGrade.grade}`,
-            "",
-            "Can you beat my score?",
-            "https://splitsecond.vercel.app",
-        ].join("\n");
-
-        try {
-            if (navigator.share) {
-                await navigator.share({
-                    title: "SplitSecond Results",
-                    text: shareText,
-                });
-
-                return;
-            }
-
-            if (
-                navigator.clipboard &&
-                typeof navigator.clipboard.writeText === "function"
-            ) {
-                await navigator.clipboard.writeText(shareText);
-
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-
-                return;
-            }
-
-            const textArea = document.createElement("textarea");
-
-            textArea.value = shareText;
-            textArea.style.position = "fixed";
-            textArea.style.left = "-9999px";
-            textArea.style.opacity = "0";
-
-            document.body.appendChild(textArea);
-
-            textArea.focus();
-            textArea.select();
-
-            document.execCommand("copy");
-            document.body.removeChild(textArea);
-
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        } catch (error) {
-            console.error("Share failed:", error);
-        }
-    };
+    
 
     const getRoundColor = (error: number) => {
         if (error <= 0.02) return "text-emerald-400 bg-emerald-500/10";
@@ -437,23 +365,11 @@ export default function FinalResults({
 
                 {/* Action Buttons */}
                 <div className="mt-6 flex gap-3">
-                    <motion.button
-                        whileTap={{ scale: 0.96 }}
-                        onClick={handleShare}
-                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-white text-zinc-950 py-3.5 px-4 font-bold text-sm shadow-xl hover:bg-zinc-100 transition active:opacity-90"
-                    >
-                        {copied ? (
-                            <>
-                                <Check className="w-4 h-4 text-emerald-600" />
-                                <span>Copied!</span>
-                            </>
-                        ) : (
-                            <>
-                                <Share2 className="w-4 h-4" />
-                                <span>Share Score</span>
-                            </>
-                        )}
-                    </motion.button>
+                    <Share
+                        results={results}
+                        totalError={totalError}
+                        grade={resultGrade.grade}
+                    />
 
                     {onViewLeaderboard && (
                         <motion.button
