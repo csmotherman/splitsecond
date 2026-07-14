@@ -52,16 +52,16 @@ async function run() {
     }
 
     const { error } = await supabase
-        .from("daily_challenges")
-        .insert({
-            challenge_date: challengeDate,
-            mode: "normal",
-            status: "scheduled",
-            finalized: false,
-            submission_count: 0,
-            average_error: null,
-            targets: generateTargets(),
-        });
+    .from("daily_challenges")
+    .insert({
+        challenge_date: challengeDate,
+        mode: "normal",
+        status: "active",
+        finalized: false,
+        submission_count: 0,
+        average_error: null,
+        targets: generateTargets(),
+    });
 
     if (error) {
         throw error;
