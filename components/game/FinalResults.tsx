@@ -284,7 +284,6 @@ export default function FinalResults({
 
         const shareText = [
             "SPLITSECOND",
-            `${modeLabel} MODE`,
             "",
             roundLines,
             "",
@@ -292,7 +291,7 @@ export default function FinalResults({
             `${resultGrade.emoji} GRADE  ${resultGrade.grade}`,
             "",
             "Can you beat my score?",
-            "https://splitsecond.gg",
+            "https://splitsecond.vercel.app",
         ].join("\n");
 
         try {
