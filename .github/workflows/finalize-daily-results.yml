@@ -1,0 +1,26 @@
+name: Finalize Daily Results
+
+on:
+  schedule:
+    # 12:10 AM EDT
+    - cron: "10 4 * * *"
+
+  workflow_dispatch:
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - run: npm install
+
+      - run: npx tsx scripts/finalizeDailyResults.ts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
