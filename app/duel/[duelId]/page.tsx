@@ -10,16 +10,7 @@ import DuelCountdown from "@/components/duel/DuelCountdown";
 import DuelTimer from "@/components/duel/DuelTimer";
 import DuelReveal from "@/components/duel/DuelReveal";
 
-import {
-    subscribeToDuel,
-    subscribeToPlayers,
-    subscribeToRounds,
-    unsubscribe,
-} from "@/lib/duel/realtime";
-
-import {
-    submitTime,
-} from "@/lib/duel/api";
+import { submitTime } from "@/lib/duel/api";
 
 type Duel = {
     id: string;
@@ -27,14 +18,6 @@ type Duel = {
     match_code: string | null;
     current_round: number;
     winner_user_id: string | null;
-};
-
-type DuelPlayer = {
-    id: string;
-    duel_id: string;
-    user_id: string;
-    slot: number;
-    ready: boolean;
 };
 
 type DuelRound = {
@@ -59,16 +42,8 @@ export default function DuelPage() {
     const [duel, setDuel] =
         useState<Duel | null>(null);
 
-    const [players, setPlayers] =
-        useState<DuelPlayer[]>([]);
-
     const [round, setRound] =
         useState<DuelRound | null>(
-            null
-        );
-
-    const [currentUserId, setCurrentUserId] =
-        useState<string | null>(
             null
         );
 
@@ -79,124 +54,71 @@ export default function DuelPage() {
 
     useEffect(() => {
         async function loadData() {
-            const {
-                data: authData,
-            } =
-                await supabase.auth.getUser();
-
-            setCurrentUserId(
-                authData.user?.id ??
-                null
-            );
-
-            const {
-                data: duelData,
-            } = await supabase
-                .from("duels")
-                .select("*")
-                .eq("id", duelId)
-                .single();
-
-            const {
-                data: playerData,
-            } = await supabase
-                .from("duel_players")
-                .select("*")
-                .eq(
-                    "duel_id",
+            try {
+                console.log(
+                    "Loading duel:",
                     duelId
-                )
-                .order("slot");
+                );
 
-            const {
-                data: roundData,
-            } = await supabase
-                .from("duel_rounds")
-                .select("*")
-                .eq(
-                    "duel_id",
-                    duelId
-                )
-                .order(
-                    "round_number",
-                    {
-                        ascending:
-                            false,
-                    }
-                )
-                .limit(1)
-                .maybeSingle();
+                const {
+                    data: duelData,
+                    error: duelError,
+                } = await supabase
+                    .from("duels")
+                    .select("*")
+                    .eq("id", duelId)
+                    .single();
 
-            setDuel(duelData);
-            setPlayers(
-                playerData ?? []
-            );
-            setRound(roundData);
+                if (duelError) {
+                    console.error(
+                        "DUEL ERROR",
+                        duelError
+                    );
 
-            setLoading(false);
+                    setLoading(false);
+                    return;
+                }
+
+                const {
+                    data: roundData,
+                    error: roundError,
+                } = await supabase
+                    .from("duel_rounds")
+                    .select("*")
+                    .eq(
+                        "duel_id",
+                        duelId
+                    )
+                    .order(
+                        "round_number",
+                        {
+                            ascending:
+                                false,
+                        }
+                    )
+                    .limit(1)
+                    .maybeSingle();
+
+                if (roundError) {
+                    console.error(
+                        "ROUND ERROR",
+                        roundError
+                    );
+                }
+
+                setDuel(duelData);
+                setRound(roundData);
+            } catch (error) {
+                console.error(
+                    "LOAD ERROR",
+                    error
+                );
+            } finally {
+                setLoading(false);
+            }
         }
 
         loadData();
-
-        const duelChannel =
-            subscribeToDuel(
-                duelId,
-                payload => {
-                    setDuel(
-                        payload.new as Duel
-                    );
-                }
-            );
-
-        const playerChannel =
-            subscribeToPlayers(
-                duelId,
-                async () => {
-                    const {
-                        data,
-                    } =
-                        await supabase
-                            .from(
-                                "duel_players"
-                            )
-                            .select("*")
-                            .eq(
-                                "duel_id",
-                                duelId
-                            )
-                            .order(
-                                "slot"
-                            );
-
-                    setPlayers(
-                        data ?? []
-                    );
-                }
-            );
-
-        const roundChannel =
-            subscribeToRounds(
-                duelId,
-                payload => {
-                    setRound(
-                        payload.new as DuelRound
-                    );
-                }
-            );
-
-        return () => {
-            unsubscribe(
-                duelChannel
-            );
-
-            unsubscribe(
-                playerChannel
-            );
-
-            unsubscribe(
-                roundChannel
-            );
-        };
     }, [duelId]);
 
     if (loading) {
@@ -237,11 +159,11 @@ export default function DuelPage() {
         return (
             <main className="flex min-h-screen items-center justify-center bg-brand-bg">
                 <DuelCountdown
-                    onComplete={() => {
+                    onComplete={() =>
                         console.log(
                             "Countdown finished"
-                        );
-                    }}
+                        )
+                    }
                 />
             </main>
         );
@@ -291,15 +213,6 @@ export default function DuelPage() {
                     yourTime={
                         mySubmission
                     }
-
-                    /*
-                     TODO:
-                     replace with
-                     actual opponent
-                     submission once
-                     reveal query
-                     exists
-                    */
                     opponentTime={
                         round.target_ms
                     }
@@ -329,8 +242,17 @@ export default function DuelPage() {
     }
 
     return (
-        <main className="flex min-h-screen items-center justify-center text-white">
-            Unknown duel state.
+        <main className="p-8 text-white">
+            <pre>
+                {JSON.stringify(
+                    {
+                        duel,
+                        round,
+                    },
+                    null,
+                    2
+                )}
+            </pre>
         </main>
     );
 }
