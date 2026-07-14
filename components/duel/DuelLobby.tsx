@@ -50,6 +50,9 @@ export default function DuelLobby({
     const [readyLoading, setReadyLoading] =
         useState(false);
 
+    const [gameStarting, setGameStarting] =
+        useState(false);
+
     useEffect(() => {
         async function load() {
             const {
@@ -144,10 +147,53 @@ export default function DuelLobby({
                 player.ready
         );
 
+    const amHost =
+        me?.slot === 1;
+
+    useEffect(() => {
+        async function autoStart() {
+            if (
+                !allReady ||
+                !amHost ||
+                gameStarting
+            ) {
+                return;
+            }
+
+            try {
+                setGameStarting(
+                    true
+                );
+
+                await startDuel(
+                    duel.id
+                );
+
+                window.location.reload();
+            } catch (error) {
+                console.error(
+                    error
+                );
+
+                setGameStarting(
+                    false
+                );
+            }
+        }
+
+        autoStart();
+    }, [
+        allReady,
+        amHost,
+        duel.id,
+        gameStarting,
+    ]);
+
     async function handleReady() {
         if (
             !me ||
-            readyLoading
+            readyLoading ||
+            gameStarting
         ) {
             return;
         }
@@ -168,18 +214,6 @@ export default function DuelLobby({
         } finally {
             setReadyLoading(
                 false
-            );
-        }
-    }
-
-    async function handleStart() {
-        try {
-            await startDuel(
-                duel.id
-            );
-        } catch (error) {
-            console.error(
-                error
             );
         }
     }
@@ -273,34 +307,32 @@ export default function DuelLobby({
                             handleReady
                         }
                         disabled={
-                            !me
+                            !me ||
+                            gameStarting
                         }
                         className="w-full rounded-2xl bg-neon-lime px-5 py-4 text-lg font-black text-black transition hover:brightness-110 disabled:opacity-50"
                     >
-                        {me?.ready
-                            ? "Unready"
-                            : "Ready Up"}
+                        {gameStarting
+                            ? "Starting Duel..."
+                            : me?.ready
+                                ? "Unready"
+                                : "Ready Up"}
                     </button>
 
                     {allReady && (
-                        <button
-                            type="button"
-                            onClick={
-                                handleStart
-                            }
-                            className="w-full rounded-2xl border border-white/10 bg-white px-5 py-4 text-lg font-black text-black"
-                        >
-                            Start Duel
-                        </button>
+                        <div className="rounded-2xl border border-green-500/30 bg-green-500/10 p-4 text-center">
+                            <div className="font-black text-green-400">
+                                Starting Duel...
+                            </div>
+                        </div>
                     )}
                 </div>
 
                 <div className="mt-6 text-center text-sm text-white/40">
-                    {players.length <
-                        2
+                    {players.length < 2
                         ? "Waiting for opponent..."
                         : allReady
-                            ? "Both players ready."
+                            ? "Starting duel..."
                             : "Waiting for players to ready up."}
                 </div>
             </div>
