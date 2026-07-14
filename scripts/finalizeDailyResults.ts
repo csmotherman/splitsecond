@@ -151,7 +151,7 @@ async function run() {
 
     console.log(
         `🥇 Winner: ${
-            winner.profiles
+            winner.profiles?.[0]
                 ?.username ??
             "Anonymous"
         }`
@@ -176,7 +176,7 @@ async function run() {
                         index + 1
                     }. ${
                         submission
-                            .profiles
+                            .profiles?.[0]
                             ?.username ??
                         "Anonymous"
                     } - ${
