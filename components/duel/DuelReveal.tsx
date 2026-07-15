@@ -57,17 +57,17 @@ export default function DuelReveal({
     useEffect(() => {
         const t1 = setTimeout(
             () => setShowYou(true),
-            1000
+            800
         );
 
         const t2 = setTimeout(
             () => setShowOpponent(true),
-            2000
+            1800
         );
 
         const t3 = setTimeout(
             () => setShowResult(true),
-            4000
+            3600
         );
 
         return () => {
@@ -82,9 +82,9 @@ export default function DuelReveal({
 
         const interval = setInterval(() => {
             setSpinningValue(
-                Math.random() * 0.25
+                Math.random() * 10
             );
-        }, 60);
+        }, 50);
 
         const stop = setTimeout(() => {
             clearInterval(interval);
@@ -104,99 +104,110 @@ export default function DuelReveal({
     ]);
 
     return (
-        <div className="flex h-screen flex-col items-center justify-center px-6 text-center text-white">
+        <div className="flex min-h-screen flex-col items-center px-5 pt-16 text-center text-white">
             {/* ROUND */}
 
-            <div className="text-[11px] font-black uppercase tracking-[0.4em] text-white/40">
-                Round {roundNumber}
+            <div className="text-[10px] font-black uppercase tracking-[0.45em] text-white/35">
+                Round {roundNumber} of 5
             </div>
 
             {/* TARGET */}
 
             <div className="mt-8">
-                <div className="text-xs font-black uppercase tracking-[0.35em] text-white/40">
+                <div className="text-[11px] font-black uppercase tracking-[0.35em] text-white/40">
                     Target
                 </div>
 
-                <div className="mt-2 font-mono text-7xl font-black text-neon-lime">
+                <div className="mt-2 font-mono text-7xl font-black leading-none text-neon-lime">
                     {(
                         targetMs / 1000
                     ).toFixed(2)}
                 </div>
             </div>
 
-            {/* YOU */}
+            {/* YOUR ERROR */}
 
-            <div className="mt-10 h-28">
-                {showYou && (
-                    <>
-                        <div className="text-xs font-black uppercase tracking-[0.35em] text-white/40">
-                            Your Error
-                        </div>
+            <div
+                className={`mt-8 transition-all duration-500 ${showYou
+                        ? "translate-y-0 opacity-100"
+                        : "translate-y-3 opacity-0"
+                    }`}
+            >
+                <div className="text-[11px] font-black uppercase tracking-[0.35em] text-white/40">
+                    Your Error
+                </div>
 
-                        <div className="mt-2 text-7xl font-black text-neon-lime">
-                            {(
-                                yourError /
-                                1000
-                            ).toFixed(2)}
-                        </div>
-                    </>
-                )}
+                <div className="mt-1 text-7xl font-black leading-none text-neon-lime">
+                    {showYou
+                        ? (
+                            yourError /
+                            1000
+                        ).toFixed(2)
+                        : "--"}
+                </div>
             </div>
 
             {/* VS */}
 
-            <div className="text-white/20">
+            <div className="mt-4 text-sm font-black tracking-[0.4em] text-white/20">
                 VS
             </div>
 
             {/* OPPONENT */}
 
-            <div className="mt-4 h-28">
-                {showOpponent && (
-                    <>
-                        <div className="text-xs font-black uppercase tracking-[0.35em] text-white/40">
-                            Opponent Error
-                        </div>
+            <div
+                className={`mt-4 transition-all duration-500 ${showOpponent
+                        ? "translate-y-0 opacity-100"
+                        : "translate-y-3 opacity-0"
+                    }`}
+            >
+                <div className="text-[11px] font-black uppercase tracking-[0.35em] text-white/40">
+                    Opponent Error
+                </div>
 
-                        <div className="mt-2 font-black text-7xl">
-                            {spinningValue.toFixed(
-                                2
-                            )}
-                        </div>
-                    </>
-                )}
+                <div className="mt-1 text-7xl font-black leading-none">
+                    {showOpponent
+                        ? spinningValue.toFixed(
+                            2
+                        )
+                        : "--"}
+                </div>
             </div>
 
             {/* RESULT */}
 
-            <div className="mt-8 h-24">
-                {showResult && (
-                    <>
-                        <div
-                            className={`text-6xl font-black ${tie
-                                    ? "text-yellow-400"
-                                    : youWon
-                                        ? "text-neon-lime"
-                                        : "text-red-400"
-                                }`}
-                        >
-                            {tie
-                                ? "DRAW"
-                                : youWon
-                                    ? "VICTORY"
-                                    : "DEFEAT"}
-                        </div>
+            <div
+                className={`mt-10 transition-all duration-500 ${showResult
+                        ? "scale-100 opacity-100"
+                        : "scale-75 opacity-0"
+                    }`}
+            >
+                <div
+                    className={`text-6xl font-black leading-none ${tie
+                            ? "text-yellow-400"
+                            : youWon
+                                ? "text-neon-lime"
+                                : "text-red-500"
+                        }`}
+                >
+                    {tie
+                        ? "DRAW"
+                        : youWon
+                            ? "VICTORY"
+                            : "DEFEAT"}
+                </div>
 
-                        <div className="mt-2 text-3xl font-black">
-                            {yourWins}
-                            <span className="mx-2 text-white/30">
-                                -
-                            </span>
-                            {opponentWins}
-                        </div>
-                    </>
-                )}
+                <div className="mt-4 text-[10px] font-black uppercase tracking-[0.35em] text-white/40">
+                    Match Score
+                </div>
+
+                <div className="mt-1 text-4xl font-black">
+                    {yourWins}
+                    <span className="mx-3 text-white/25">
+                        -
+                    </span>
+                    {opponentWins}
+                </div>
             </div>
         </div>
     );
