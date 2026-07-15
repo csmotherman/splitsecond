@@ -39,6 +39,15 @@ type DuelSubmission = {
     submitted_at: string;
 };
 
+type DuelPlayer = {
+    id: string;
+    duel_id: string;
+    user_id: string;
+    slot: number;
+    ready: boolean;
+    round_wins: number;
+};
+
 export default function DuelPage() {
     const params = useParams();
 
@@ -51,7 +60,12 @@ export default function DuelPage() {
         useState<Duel | null>(null);
 
     const [round, setRound] =
-        useState<DuelRound | null>(null);
+        useState<DuelRound | null>(
+            null
+        );
+
+    const [players, setPlayers] =
+        useState<DuelPlayer[]>([]);
 
     const [submissions, setSubmissions] =
         useState<DuelSubmission[]>([]);
@@ -94,15 +108,13 @@ export default function DuelPage() {
                     error: duelError,
                 } = await supabase
                     .from("duels")
-                    .select(
-                        `
+                    .select(`
                         id,
                         status,
                         match_code,
                         current_round,
                         winner_user_id
-                        `
-                    )
+                    `)
                     .eq("id", duelId)
                     .single();
 
@@ -116,12 +128,30 @@ export default function DuelPage() {
                 }
 
                 const {
+                    data: playerData,
+                    error: playerError,
+                } = await supabase
+                    .from("duel_players")
+                    .select("*")
+                    .eq(
+                        "duel_id",
+                        duelId
+                    )
+                    .order("slot");
+
+                if (playerError) {
+                    console.error(
+                        "PLAYER ERROR",
+                        playerError
+                    );
+                }
+
+                const {
                     data: roundData,
                     error: roundError,
                 } = await supabase
                     .from("duel_rounds")
-                    .select(
-                        `
+                    .select(`
                         id,
                         duel_id,
                         round_number,
@@ -129,8 +159,7 @@ export default function DuelPage() {
                         status,
                         winner_user_id,
                         is_tie
-                        `
-                    )
+                    `)
                     .eq(
                         "duel_id",
                         duelId
@@ -164,16 +193,14 @@ export default function DuelPage() {
                         .from(
                             "duel_round_submissions"
                         )
-                        .select(
-                            `
+                        .select(`
                             id,
                             round_id,
                             user_id,
                             elapsed_ms,
                             error_ms,
                             submitted_at
-                            `
-                        )
+                        `)
                         .eq(
                             "round_id",
                             roundData.id
@@ -199,6 +226,9 @@ export default function DuelPage() {
                 if (!cancelled) {
                     setDuel(duelData);
                     setRound(roundData);
+                    setPlayers(
+                        playerData ?? []
+                    );
                     setSubmissions(
                         submissionData ?? []
                     );
@@ -262,6 +292,32 @@ export default function DuelPage() {
             submissions,
             currentUserId,
         ]);
+
+    const me = useMemo(
+        () =>
+            players.find(
+                player =>
+                    player.user_id ===
+                    currentUserId
+            ) ?? null,
+        [
+            players,
+            currentUserId,
+        ]
+    );
+
+    const opponent = useMemo(
+        () =>
+            players.find(
+                player =>
+                    player.user_id !==
+                    currentUserId
+            ) ?? null,
+        [
+            players,
+            currentUserId,
+        ]
+    );
 
     async function handleSubmitTime(
         elapsedMs: number
@@ -408,6 +464,7 @@ export default function DuelPage() {
                         {JSON.stringify(
                             {
                                 currentUserId,
+                                players,
                                 submissions,
                                 mySubmission,
                                 opponentSubmission,
@@ -423,6 +480,9 @@ export default function DuelPage() {
         return (
             <main className="min-h-screen bg-brand-bg p-4">
                 <DuelReveal
+                    roundNumber={
+                        duel.current_round
+                    }
                     targetMs={
                         round.target_ms
                     }
@@ -431,6 +491,13 @@ export default function DuelPage() {
                     }
                     opponentTime={
                         opponentSubmission.elapsed_ms
+                    }
+                    yourWins={
+                        me?.round_wins ?? 0
+                    }
+                    opponentWins={
+                        opponent?.round_wins ??
+                        0
                     }
                 />
             </main>
@@ -460,6 +527,7 @@ export default function DuelPage() {
                     {
                         duel,
                         round,
+                        players,
                         currentUserId,
                         submissions,
                     },
