@@ -403,8 +403,19 @@ export default function DuelPage() {
             !opponentSubmission
         ) {
             return (
-                <main className="flex min-h-screen items-center justify-center bg-brand-bg text-white">
-                    Loading round results...
+                <main className="p-8 text-white">
+                    <pre>
+                        {JSON.stringify(
+                            {
+                                currentUserId,
+                                submissions,
+                                mySubmission,
+                                opponentSubmission,
+                            },
+                            null,
+                            2
+                        )}
+                    </pre>
                 </main>
             );
         }
