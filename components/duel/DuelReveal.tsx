@@ -13,10 +13,11 @@ type Props = {
     yourWins: number;
     opponentWins: number;
 
-    onReadyUp: () => void;
+    onReadyUp?: () => void;
+
     isReady?: boolean;
     readyDisabled?: boolean;
-};
+}
 
 export default function DuelReveal({
     roundNumber,
@@ -28,7 +29,7 @@ export default function DuelReveal({
     onReadyUp,
     isReady = false,
     readyDisabled = false,
-}: Props) {
+}: Props): import("react").JSX.Element {
     const yourError = Math.abs(
         targetMs - yourTime
     );
@@ -210,8 +211,8 @@ export default function DuelReveal({
 
                 <div
                     className={`mt-4 transition-all duration-500 ${showYou
-                            ? "translate-y-0 scale-100 opacity-100"
-                            : "translate-y-2 scale-95 opacity-0"
+                        ? "translate-y-0 scale-100 opacity-100"
+                        : "translate-y-2 scale-95 opacity-0"
                         }`}
                 >
                     <div className="text-[10px] font-black uppercase tracking-[0.34em] text-white/40">
@@ -235,8 +236,8 @@ export default function DuelReveal({
 
                 <div
                     className={`mt-2 transition-all duration-500 ${showOpponent
-                            ? "translate-y-0 opacity-100"
-                            : "translate-y-2 opacity-0"
+                        ? "translate-y-0 opacity-100"
+                        : "translate-y-2 opacity-0"
                         }`}
                 >
                     <div className="text-[10px] font-black uppercase tracking-[0.34em] text-white/40">
@@ -245,8 +246,8 @@ export default function DuelReveal({
 
                     <div
                         className={`mt-1 font-mono text-5xl font-black leading-none transition-all duration-300 sm:text-6xl ${opponentLocked
-                                ? "scale-100 text-white"
-                                : "scale-[1.03] text-white/70 blur-[0.4px]"
+                            ? "scale-100 text-white"
+                            : "scale-[1.03] text-white/70 blur-[0.4px]"
                             }`}
                     >
                         {spinningValue.toFixed(
@@ -259,16 +260,16 @@ export default function DuelReveal({
 
                 <div
                     className={`mt-4 transition-all duration-500 ${showResult
-                            ? "translate-y-0 scale-100 opacity-100"
-                            : "translate-y-2 scale-75 opacity-0"
+                        ? "translate-y-0 scale-100 opacity-100"
+                        : "translate-y-2 scale-75 opacity-0"
                         }`}
                 >
                     <div
                         className={`text-4xl font-black leading-none tracking-tight sm:text-5xl ${tie
-                                ? "text-yellow-400"
-                                : youWon
-                                    ? "text-neon-lime"
-                                    : "text-red-500"
+                            ? "text-yellow-400"
+                            : youWon
+                                ? "text-neon-lime"
+                                : "text-red-500"
                             }`}
                     >
                         {resultLabel}
@@ -310,8 +311,8 @@ export default function DuelReveal({
 
             <div
                 className={`mx-auto w-full max-w-md shrink-0 transition-all delay-200 duration-500 ${showResult
-                        ? "translate-y-0 opacity-100"
-                        : "pointer-events-none translate-y-3 opacity-0"
+                    ? "translate-y-0 opacity-100"
+                    : "pointer-events-none translate-y-3 opacity-0"
                     }`}
             >
                 <button
@@ -323,8 +324,8 @@ export default function DuelReveal({
                         !showResult
                     }
                     className={`flex h-12 w-full items-center justify-center rounded-2xl border text-sm font-black uppercase tracking-[0.22em] transition active:scale-[0.98] ${isReady
-                            ? "cursor-default border-neon-lime/20 bg-neon-lime/10 text-neon-lime/60"
-                            : "border-neon-lime bg-neon-lime text-black shadow-[0_0_24px_rgba(57,255,20,0.22)] hover:brightness-110"
+                        ? "cursor-default border-neon-lime/20 bg-neon-lime/10 text-neon-lime/60"
+                        : "border-neon-lime bg-neon-lime text-black shadow-[0_0_24px_rgba(57,255,20,0.22)] hover:brightness-110"
                         } disabled:cursor-not-allowed`}
                 >
                     {isReady
