@@ -104,7 +104,7 @@ export default function DuelReveal({
     ]);
 
     return (
-        <div className="flex min-h-screen flex-col items-center px-5 pt-16 text-center text-white">
+        <div className="flex h-full flex-col items-center px-5 pt-6 text-center text-white">
             {/* ROUND */}
 
             <div className="text-[10px] font-black uppercase tracking-[0.45em] text-white/35">
@@ -129,8 +129,8 @@ export default function DuelReveal({
 
             <div
                 className={`mt-8 transition-all duration-500 ${showYou
-                        ? "translate-y-0 opacity-100"
-                        : "translate-y-3 opacity-0"
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-3 opacity-0"
                     }`}
             >
                 <div className="text-[11px] font-black uppercase tracking-[0.35em] text-white/40">
@@ -157,8 +157,8 @@ export default function DuelReveal({
 
             <div
                 className={`mt-4 transition-all duration-500 ${showOpponent
-                        ? "translate-y-0 opacity-100"
-                        : "translate-y-3 opacity-0"
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-3 opacity-0"
                     }`}
             >
                 <div className="text-[11px] font-black uppercase tracking-[0.35em] text-white/40">
@@ -178,16 +178,16 @@ export default function DuelReveal({
 
             <div
                 className={`mt-10 transition-all duration-500 ${showResult
-                        ? "scale-100 opacity-100"
-                        : "scale-75 opacity-0"
+                    ? "scale-100 opacity-100"
+                    : "scale-75 opacity-0"
                     }`}
             >
                 <div
                     className={`text-6xl font-black leading-none ${tie
-                            ? "text-yellow-400"
-                            : youWon
-                                ? "text-neon-lime"
-                                : "text-red-500"
+                        ? "text-yellow-400"
+                        : youWon
+                            ? "text-neon-lime"
+                            : "text-red-500"
                         }`}
                 >
                     {tie
