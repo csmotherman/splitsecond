@@ -478,7 +478,7 @@ export default function DuelPage() {
         }
 
         return (
-            <main className="min-h-screen bg-brand-bg p-4">
+            <main className="h-screen overflow-hidden bg-brand-bg">
                 <DuelReveal
                     roundNumber={
                         duel.current_round
@@ -496,8 +496,7 @@ export default function DuelPage() {
                         me?.round_wins ?? 0
                     }
                     opponentWins={
-                        opponent?.round_wins ??
-                        0
+                        opponent?.round_wins ?? 0
                     }
                 />
             </main>
