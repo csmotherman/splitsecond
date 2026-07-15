@@ -10,7 +10,10 @@ import DuelCountdown from "@/components/duel/DuelCountdown";
 import DuelTimer from "@/components/duel/DuelTimer";
 import DuelReveal from "@/components/duel/DuelReveal";
 
-import { submitTime } from "@/lib/duel/api";
+import {
+    submitTime,
+    setReady,
+} from "@/lib/duel/api";
 
 type Duel = {
     id: string;
@@ -77,6 +80,11 @@ export default function DuelPage() {
         useState(false);
 
     const [submitError, setSubmitError] =
+        useState<string | null>(null);
+    const [readyingUp, setReadyingUp] =
+        useState(false);
+
+    const [readyError, setReadyError] =
         useState<string | null>(null);
 
     useEffect(() => {
@@ -353,6 +361,39 @@ export default function DuelPage() {
             setSubmitting(false);
         }
     }
+    async function handleReadyUp() {
+        if (
+            !duel ||
+            !me ||
+            me.ready ||
+            readyingUp
+        ) {
+            return;
+        }
+
+        try {
+            setReadyingUp(true);
+            setReadyError(null);
+
+            await setReady(
+                duel.id,
+                true
+            );
+        } catch (error) {
+            console.error(
+                "READY ERROR",
+                error
+            );
+
+            setReadyError(
+                error instanceof Error
+                    ? error.message
+                    : "Unable to ready up."
+            );
+        } finally {
+            setReadyingUp(false);
+        }
+    }
 
     if (loading) {
         return (
@@ -481,7 +522,7 @@ export default function DuelPage() {
             <main className="h-screen overflow-hidden bg-brand-bg">
                 <DuelReveal
                     roundNumber={
-                        duel.current_round
+                        round.round_number
                     }
                     targetMs={
                         round.target_ms
@@ -498,7 +539,22 @@ export default function DuelPage() {
                     opponentWins={
                         opponent?.round_wins ?? 0
                     }
+                    onReadyUp={
+                        handleReadyUp
+                    }
+                    isReady={
+                        me?.ready ?? false
+                    }
+                    readyDisabled={
+                        readyingUp
+                    }
                 />
+
+                {readyError && (
+                    <div className="absolute bottom-20 left-0 right-0 px-6 text-center text-sm font-bold text-red-400">
+                        {readyError}
+                    </div>
+                )}
             </main>
         );
     }
