@@ -1,216 +1,301 @@
-type Props = {
-    roundNumber: number;
+"use client";
 
-    targetMs: number;
+import {
+    FormEvent,
+    useEffect,
+    useState,
+} from "react";
+import {
+    useRouter,
+} from "next/navigation";
 
-    yourTime: number;
-    opponentTime: number;
+import {
+    supabase,
+} from "@/lib/supabase/client";
 
-    yourWins: number;
-    opponentWins: number;
-};
+import {
+    createPrivateDuel,
+    joinPrivateDuel,
+} from "@/lib/duel/api";
 
-export default function DuelReveal({
-    roundNumber,
-    targetMs,
-    yourTime,
-    opponentTime,
-    yourWins,
-    opponentWins,
-}: Props) {
-    const yourError =
-        Math.abs(
-            targetMs -
-            yourTime
+export default function DuelMenuPage() {
+    const router = useRouter();
+
+    const [matchCode, setMatchCode] =
+        useState("");
+
+    const [loadingAction, setLoadingAction] =
+        useState<"create" | "join" | null>(
+            null
         );
 
-    const opponentError =
-        Math.abs(
-            targetMs -
-            opponentTime
+    const [errorMessage, setErrorMessage] =
+        useState<string | null>(null);
+
+    const [checkingAuth, setCheckingAuth] =
+        useState(true);
+
+    const [isAuthenticated, setIsAuthenticated] =
+        useState(false);
+
+    useEffect(() => {
+        async function checkAuthentication() {
+            const {
+                data: { user },
+                error,
+            } = await supabase.auth.getUser();
+
+            if (error) {
+                console.error(
+                    "Failed to check authentication:",
+                    error
+                );
+            }
+
+            setIsAuthenticated(Boolean(user));
+            setCheckingAuth(false);
+        }
+
+        checkAuthentication();
+    }, []);
+
+    async function handleCreateDuel() {
+        if (loadingAction) {
+            return;
+        }
+
+        setErrorMessage(null);
+        setLoadingAction("create");
+
+        try {
+            const duelId =
+                await createPrivateDuel();
+
+            router.push(`/duel/${duelId}`);
+        } catch (error) {
+            console.error(
+                "Failed to create duel:",
+                error
+            );
+
+            setErrorMessage(
+                error instanceof Error
+                    ? error.message
+                    : "Unable to create the duel."
+            );
+        } finally {
+            setLoadingAction(null);
+        }
+    }
+
+    async function handleJoinDuel(
+        event: FormEvent<HTMLFormElement>
+    ) {
+        event.preventDefault();
+
+        if (loadingAction) {
+            return;
+        }
+
+        const normalizedCode = matchCode
+            .trim()
+            .toUpperCase();
+
+        if (normalizedCode.length !== 6) {
+            setErrorMessage(
+                "Enter the six-character match code."
+            );
+            return;
+        }
+
+        setErrorMessage(null);
+        setLoadingAction("join");
+
+        try {
+            const duelId =
+                await joinPrivateDuel(
+                    normalizedCode
+                );
+
+            router.push(`/duel/${duelId}`);
+        } catch (error) {
+            console.error(
+                "Failed to join duel:",
+                error
+            );
+
+            setErrorMessage(
+                error instanceof Error
+                    ? error.message
+                    : "Unable to join the duel."
+            );
+        } finally {
+            setLoadingAction(null);
+        }
+    }
+
+    function handleCodeChange(
+        value: string
+    ) {
+        const cleanedValue = value
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, "")
+            .slice(0, 6);
+
+        setMatchCode(cleanedValue);
+        setErrorMessage(null);
+    }
+
+    if (checkingAuth) {
+        return (
+            <main className="flex min-h-[75vh] items-center justify-center px-6 text-white">
+                <p className="text-sm font-bold uppercase tracking-[0.2em] text-white/50">
+                    Loading duels...
+                </p>
+            </main>
         );
+    }
 
-    const youWon =
-        yourError <
-        opponentError;
+    if (!isAuthenticated) {
+        return (
+            <main className="flex min-h-[75vh] items-center justify-center px-6">
+                <section className="w-full max-w-md rounded-3xl border border-white/10 bg-brand-card p-8 text-center text-white">
+                    <p className="mb-3 text-xs font-black uppercase tracking-[0.25em] text-neon-lime">
+                        1v1 Duels
+                    </p>
 
-    const tie =
-        yourError ===
-        opponentError;
+                    <h1 className="text-4xl font-black">
+                        Sign in to duel
+                    </h1>
 
-    const difference =
-        Math.abs(
-            yourError -
-            opponentError
+                    <p className="mt-4 text-sm leading-6 text-white/60">
+                        You need an account so the game
+                        can identify both players and save
+                        the match result.
+                    </p>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            router.push("/login")
+                        }
+                        className="mt-8 w-full rounded-2xl bg-neon-lime px-5 py-4 text-base font-black text-black transition hover:brightness-110 active:scale-[0.98]"
+                    >
+                        Go to Login
+                    </button>
+                </section>
+            </main>
         );
+    }
+
+    const isCreating =
+        loadingAction === "create";
+
+    const isJoining =
+        loadingAction === "join";
 
     return (
-        <div className="mx-auto flex min-h-screen max-w-xl flex-col justify-center px-6 py-8 text-white">
-            {/* SCOREBOARD */}
+        <main className="flex min-h-[75vh] items-center justify-center px-6 py-10">
+            <section className="w-full max-w-md text-white">
+                <header className="mb-8 text-center">
+                    <p className="mb-3 text-xs font-black uppercase tracking-[0.25em] text-neon-lime">
+                        Live 1v1
+                    </p>
 
-            <div className="text-center">
-                <div className="text-xs font-black uppercase tracking-[0.35em] text-white/40">
-                    Round {roundNumber}
-                </div>
+                    <h1 className="text-5xl font-black tracking-tight">
+                        Duels
+                    </h1>
 
-                <div className="mt-4 text-8xl font-black text-neon-lime">
-                    {yourWins}
-                    <span className="mx-4 text-white/30">
-                        -
-                    </span>
-                    {opponentWins}
-                </div>
+                    <p className="mx-auto mt-4 max-w-sm text-sm leading-6 text-white/60">
+                        Create a private match or enter a
+                        friend&apos;s code. First player to
+                        win two rounds wins the duel.
+                    </p>
+                </header>
 
-                <div className="mt-2 text-sm font-black uppercase tracking-[0.25em] text-white/50">
-                    Match Score
-                </div>
-            </div>
+                <div className="space-y-4">
+                    <button
+                        type="button"
+                        onClick={handleCreateDuel}
+                        disabled={Boolean(
+                            loadingAction
+                        )}
+                        className="w-full rounded-2xl bg-neon-lime px-5 py-5 text-lg font-black text-black transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        {isCreating
+                            ? "Creating Match..."
+                            : "Create Private Match"}
+                    </button>
 
-            {/* RESULT BANNER */}
+                    <div className="flex items-center gap-4 py-2">
+                        <div className="h-px flex-1 bg-white/10" />
 
-            <div
-                className={`mt-10 rounded-3xl border p-8 text-center ${tie
-                        ? "border-yellow-500/30 bg-yellow-500/10"
-                        : youWon
-                            ? "border-neon-lime/30 bg-neon-lime/10"
-                            : "border-red-500/30 bg-red-500/10"
-                    }`}
-            >
-                <div className="text-sm font-black uppercase tracking-[0.35em] text-white/50">
-                    Round Result
-                </div>
+                        <span className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
+                            Or join
+                        </span>
 
-                <div
-                    className={`mt-3 text-6xl font-black ${tie
-                            ? "text-yellow-400"
-                            : youWon
-                                ? "text-neon-lime"
-                                : "text-red-400"
-                        }`}
-                >
-                    {tie
-                        ? "DRAW"
-                        : youWon
-                            ? "VICTORY"
-                            : "DEFEAT"}
-                </div>
-            </div>
+                        <div className="h-px flex-1 bg-white/10" />
+                    </div>
 
-            {/* TARGET */}
+                    <form
+                        onSubmit={handleJoinDuel}
+                        className="rounded-3xl border border-white/10 bg-brand-card p-5"
+                    >
+                        <label
+                            htmlFor="match-code"
+                            className="mb-3 block text-xs font-black uppercase tracking-[0.2em] text-white/50"
+                        >
+                            Match code
+                        </label>
 
-            <div className="mt-10 text-center">
-                <div className="text-xs font-black uppercase tracking-[0.3em] text-white/40">
-                    Target Time
-                </div>
+                        <input
+                            id="match-code"
+                            name="match-code"
+                            type="text"
+                            value={matchCode}
+                            onChange={(event) =>
+                                handleCodeChange(
+                                    event.target.value
+                                )
+                            }
+                            placeholder="ABC123"
+                            autoComplete="off"
+                            autoCapitalize="characters"
+                            spellCheck={false}
+                            inputMode="text"
+                            maxLength={6}
+                            disabled={Boolean(
+                                loadingAction
+                            )}
+                            className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-4 text-center font-mono text-3xl font-black uppercase tracking-[0.3em] text-white outline-none transition placeholder:text-white/15 focus:border-neon-lime/70 disabled:opacity-50"
+                        />
 
-                <div className="mt-3 text-6xl font-black text-neon-lime">
-                    {(
-                        targetMs /
-                        1000
-                    ).toFixed(
-                        3
+                        <button
+                            type="submit"
+                            disabled={
+                                Boolean(
+                                    loadingAction
+                                ) ||
+                                matchCode.length !== 6
+                            }
+                            className="mt-4 w-full rounded-2xl border border-white/10 bg-white px-5 py-4 text-base font-black text-black transition hover:bg-white/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            {isJoining
+                                ? "Joining Match..."
+                                : "Join Match"}
+                        </button>
+                    </form>
+
+                    {errorMessage && (
+                        <div
+                            role="alert"
+                            className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-center text-sm font-bold text-red-300"
+                        >
+                            {errorMessage}
+                        </div>
                     )}
                 </div>
-            </div>
-
-            {/* PLAYER CARDS */}
-
-            <div className="mt-10 grid grid-cols-2 gap-4">
-                <div className="rounded-3xl border border-neon-lime/20 bg-brand-card p-5">
-                    <div className="text-sm font-black uppercase tracking-[0.25em] text-white/50">
-                        You
-                    </div>
-
-                    <div className="mt-4 text-4xl font-black">
-                        {(
-                            yourTime /
-                            1000
-                        ).toFixed(
-                            3
-                        )}
-                    </div>
-
-                    <div className="mt-1 text-sm text-white/50">
-                        Time
-                    </div>
-
-                    <div className="mt-6 text-3xl font-black text-neon-lime">
-                        ±
-                        {(
-                            yourError /
-                            1000
-                        ).toFixed(
-                            3
-                        )}
-                    </div>
-
-                    <div className="text-sm text-white/50">
-                        Error
-                    </div>
-                </div>
-
-                <div className="rounded-3xl border border-white/10 bg-brand-card p-5">
-                    <div className="text-sm font-black uppercase tracking-[0.25em] text-white/50">
-                        Opponent
-                    </div>
-
-                    <div className="mt-4 text-4xl font-black">
-                        {(
-                            opponentTime /
-                            1000
-                        ).toFixed(
-                            3
-                        )}
-                    </div>
-
-                    <div className="mt-1 text-sm text-white/50">
-                        Time
-                    </div>
-
-                    <div className="mt-6 text-3xl font-black text-neon-lime">
-                        ±
-                        {(
-                            opponentError /
-                            1000
-                        ).toFixed(
-                            3
-                        )}
-                    </div>
-
-                    <div className="text-sm text-white/50">
-                        Error
-                    </div>
-                </div>
-            </div>
-
-            {/* MARGIN */}
-
-            <div className="mt-8 rounded-3xl border border-white/10 bg-brand-card p-6 text-center">
-                <div className="text-xs font-black uppercase tracking-[0.25em] text-white/40">
-                    Margin Of Victory
-                </div>
-
-                <div className="mt-3 text-5xl font-black text-neon-lime">
-                    {(
-                        difference /
-                        1000
-                    ).toFixed(
-                        3
-                    )}
-                </div>
-
-                <div className="mt-2 text-sm text-white/50">
-                    Seconds
-                </div>
-            </div>
-
-            {/* NEXT ROUND */}
-
-            <div className="mt-8 text-center">
-                <div className="inline-flex items-center rounded-full border border-neon-lime/30 bg-neon-lime/10 px-6 py-3 text-sm font-black uppercase tracking-[0.2em] text-neon-lime">
-                    Waiting For Next Round...
-                </div>
-            </div>
-        </div>
+            </section>
+        </main>
     );
 }
