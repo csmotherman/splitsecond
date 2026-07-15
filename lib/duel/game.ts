@@ -12,7 +12,7 @@ export function formatMs(
 ) {
     return (
         milliseconds / 1000
-    ).toFixed(3);
+    ).toFixed(2);
 }
 
 export function formatTarget(
@@ -20,7 +20,7 @@ export function formatTarget(
 ) {
     return (
         milliseconds / 1000
-    ).toFixed(3);
+    ).toFixed(2);
 }
 
 export function getWinner(
