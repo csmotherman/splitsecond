@@ -1,65 +1,34 @@
 type Props = {
+    roundNumber: number;
+
     targetMs: number;
+
     yourTime: number;
     opponentTime: number;
+
+    yourWins: number;
+    opponentWins: number;
 };
 
 export default function DuelReveal({
+    roundNumber,
     targetMs,
     yourTime,
     opponentTime,
+    yourWins,
+    opponentWins,
 }: Props) {
-    const yourError =
-        Math.abs(
-            targetMs -
-            yourTime
-        );
-
-    const opponentError =
-        Math.abs(
-            targetMs -
-            opponentTime
-        );
-
     return (
-        <div className="space-y-6 text-center text-white">
-            <div className="text-6xl font-black text-neon-lime">
-                {(
-                    targetMs / 1000
-                ).toFixed(3)}
-            </div>
-
-            <div>
-                You:{" "}
-                {(
-                    yourTime /
-                    1000
-                ).toFixed(3)}
-            </div>
-
-            <div>
-                Opponent:{" "}
-                {(
-                    opponentTime /
-                    1000
-                ).toFixed(3)}
-            </div>
-
-            <div>
-                Error:{" "}
-                {(
-                    yourError /
-                    1000
-                ).toFixed(3)}
-            </div>
-
-            <div>
-                Opponent Error:{" "}
-                {(
-                    opponentError /
-                    1000
-                ).toFixed(3)}
-            </div>
+        <div className="text-white">
+            Round {roundNumber}
+            <br />
+            Score: {yourWins}-{opponentWins}
+            <br />
+            Target: {targetMs}
+            <br />
+            You: {yourTime}
+            <br />
+            Opponent: {opponentTime}
         </div>
     );
 }
