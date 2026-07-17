@@ -206,6 +206,10 @@ export async function getSubmissionStats(
     challengeId: string,
     totalError: number
 ) {
+    console.log("getSubmissionStats input", {
+        challengeId,
+        totalError,
+    });
     const { count: betterToday, error: rankError } =
         await supabase
             .from("daily_submissions")
@@ -257,7 +261,10 @@ export async function getSubmissionStats(
                   totalRuns) *
               100
             : 0;
-
+    console.log("getSubmissionStats output", {
+        dailyRank,
+        percentile,
+    });
     return {
         dailyRank,
         percentile,
