@@ -30,15 +30,18 @@ async function run() {
         easternNow.toISOString().split("T")[0];
 
     console.log(
-        `Checking challenge for ${challengeDate}`
+        `Checking normal challenge for ${challengeDate}`
     );
 
-    const { data: existing, error: existingError } =
-        await supabase
-            .from("daily_challenges")
-            .select("id")
-            .eq("challenge_date", challengeDate)
-            .maybeSingle();
+    const {
+        data: existing,
+        error: existingError,
+    } = await supabase
+        .from("daily_challenges")
+        .select("id")
+        .eq("challenge_date", challengeDate)
+        .eq("mode", "normal")
+        .maybeSingle();
 
     if (existingError) {
         throw existingError;
@@ -46,7 +49,7 @@ async function run() {
 
     if (existing) {
         console.log(
-            `Challenge already exists for ${challengeDate}`
+            `Normal challenge already exists for ${challengeDate}`
         );
         return;
     }
@@ -56,7 +59,7 @@ async function run() {
         .insert({
             challenge_date: challengeDate,
             mode: "normal",
-            status: "scheduled",
+            status: "active",
             finalized: false,
             submission_count: 0,
             average_error: null,
@@ -68,11 +71,14 @@ async function run() {
     }
 
     console.log(
-        `Created challenge for ${challengeDate}`
+        `Created normal challenge for ${challengeDate}`
     );
 }
 
 run().catch((err) => {
-    console.error(err);
+    console.error(
+        "Daily challenge creation failed:",
+        err
+    );
     process.exit(1);
 });
