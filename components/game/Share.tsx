@@ -33,24 +33,29 @@ export default function Share({
     const [copied, setCopied] =
         useState(false);
 
-    const sharePattern = results
-        .slice(0, 5)
-        .map((r) =>
-            getShareEmoji(r.error)
-        )
-        .join("");
-
     async function handleShare() {
+        const roundBreakdown = results
+            .slice(0, 5)
+            .map(
+                (r) =>
+                    `${getShareEmoji(r.error)} ${r.error.toFixed(2)}s`
+            )
+            .join("\n");
+
         const shareText = [
-            "SPLITSECOND",
+            "SplitSecond",
             "",
-            sharePattern,
+            roundBreakdown,
             "",
-            `${grade} Grade`,
-            `+${totalError.toFixed(3)}s Total Error`,
+            "TOTAL ERROR",
+            `+${totalError.toFixed(3)}s`,
             rank
                 ? `#${rank} Today`
                 : null,
+            "",
+            "No timer.",
+            "No counting.",
+            "Just instinct.",
             "",
             "Can you beat me?",
             "playsplitsecond.com",
