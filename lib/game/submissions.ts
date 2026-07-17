@@ -115,14 +115,73 @@ export async function completeSubmission(
         updateData.completed_seconds = completedSeconds;
     }
 
-    const { error } = await supabase
-        .from("daily_submissions")
-        .update(updateData)
-        .eq("id", submissionId);
+    const { data: submission, error: updateError } =
+        await supabase
+            .from("daily_submissions")
+            .update(updateData)
+            .eq("id", submissionId)
+            .select("id, challenge_id, total_error")
+            .single();
 
-    if (error) {
-        throw error;
+    if (updateError) {
+        throw updateError;
     }
+
+    const { count: betterToday } =
+        await supabase
+            .from("daily_submissions")
+            .select("*", {
+                count: "exact",
+                head: true,
+            })
+            .eq(
+                "challenge_id",
+                submission.challenge_id
+            )
+            .eq("completed", true)
+            .lt(
+                "total_error",
+                submission.total_error
+            );
+
+    const dailyRank =
+        (betterToday ?? 0) + 1;
+
+    const { count: totalRuns } =
+        await supabase
+            .from("daily_submissions")
+            .select("*", {
+                count: "exact",
+                head: true,
+            })
+            .eq("completed", true);
+
+    const { count: worseRuns } =
+        await supabase
+            .from("daily_submissions")
+            .select("*", {
+                count: "exact",
+                head: true,
+            })
+            .eq("completed", true)
+            .gt(
+                "total_error",
+                submission.total_error
+            );
+
+    const percentile =
+        totalRuns && totalRuns > 0
+            ? (
+                  ((worseRuns ?? 0) /
+                      totalRuns) *
+                  100
+              )
+            : 0;
+
+    return {
+        dailyRank,
+        percentile,
+    };
 }
 
 export async function isChallengeCompleted(

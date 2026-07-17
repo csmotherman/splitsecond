@@ -52,12 +52,15 @@ type Submission = {
     total_error?: number | null;
     submitted_at?: string | null;
 
+    daily_rank?: number | null;
+    percentile?: number | null;
+
     [key: string]:
-    | string
-    | number
-    | boolean
-    | null
-    | undefined;
+        | string
+        | number
+        | boolean
+        | null
+        | undefined;
 };
 
 type GameContainerProps = {
@@ -73,13 +76,14 @@ export default function GameContainer({
     gameMode = "daily",
     submission,
 }: GameContainerProps) {
-    const [phase, setPhase] = useState<GamePhase>(
-        gameMode === "practice"
-            ? "waiting"
-            : submission?.completed
-                ? "finished"
-                : "waiting"
-    );
+    const [phase, setPhase] =
+        useState<GamePhase>(
+            gameMode === "practice"
+                ? "waiting"
+                : submission?.completed
+                    ? "finished"
+                    : "waiting"
+        );
 
     const [currentRound, setCurrentRound] =
         useState(
@@ -102,12 +106,12 @@ export default function GameContainer({
             for (let i = 1; i <= 5; i++) {
                 const actual =
                     submission?.[
-                    `round_${i}_actual` as keyof Submission
+                        `round_${i}_actual` as keyof Submission
                     ];
 
                 const error =
                     submission?.[
-                    `round_${i}_error` as keyof Submission
+                        `round_${i}_error` as keyof Submission
                     ];
 
                 if (
@@ -137,19 +141,39 @@ export default function GameContainer({
     const [startTimestamp, setStartTimestamp] =
         useState<number | null>(null);
 
+    const [dailyRank, setDailyRank] =
+        useState<number | undefined>(
+            typeof submission?.daily_rank === "number"
+                ? submission.daily_rank
+                : undefined
+        );
+
+    const [percentile, setPercentile] =
+        useState<number | undefined>(
+            typeof submission?.percentile === "number"
+                ? submission.percentile
+                : undefined
+        );
+
     const target = targets[currentRound];
 
     const handleButtonPress = async () => {
         if (!isRunning) {
-            setStartTimestamp(performance.now());
+            setStartTimestamp(
+                performance.now()
+            );
+
             setIsRunning(true);
             return;
         }
 
-        if (!startTimestamp) return;
+        if (startTimestamp === null) {
+            return;
+        }
 
         const elapsed =
-            (performance.now() - startTimestamp) /
+            (performance.now() -
+                startTimestamp) /
             1000;
 
         const roundedActual = Number(
@@ -209,9 +233,18 @@ export default function GameContainer({
                                 .toFixed(2)
                         );
 
-                    await completeSubmission(
-                        submission.id,
-                        finalTotalError
+                    const ranking =
+                        await completeSubmission(
+                            submission.id,
+                            finalTotalError
+                        );
+
+                    setDailyRank(
+                        ranking.dailyRank
+                    );
+
+                    setPercentile(
+                        ranking.percentile
                     );
                 }
             }
@@ -225,7 +258,7 @@ export default function GameContainer({
             );
 
             setIsRunning(false);
-
+            setStartTimestamp(null);
             setPhase("result");
         } catch (err) {
             console.error(
@@ -242,20 +275,17 @@ export default function GameContainer({
             currentRound + 1;
 
         if (
-            nextIndex >= targets.length
+            nextIndex >=
+            targets.length
         ) {
             setPhase("finished");
             return;
         }
 
         setCurrentRound(nextIndex);
-
         setActualTime(0);
-
         setStartTimestamp(null);
-
         setIsRunning(false);
-
         setPhase("waiting");
     };
 
@@ -308,7 +338,7 @@ export default function GameContainer({
 
                     {saving &&
                         gameMode ===
-                        "daily" && (
+                            "daily" && (
                             <p className="text-green-400">
                                 Saving round...
                             </p>
@@ -340,15 +370,14 @@ export default function GameContainer({
                         actual={actualTime}
                         error={Math.abs(
                             target -
-                            actualTime
+                                actualTime
                         )}
                     />
 
                     <ActionButton
                         label={
                             currentRound ===
-                                targets.length -
-                                1
+                            targets.length - 1
                                 ? "RESULTS"
                                 : "NEXT"
                         }
@@ -366,6 +395,12 @@ export default function GameContainer({
                         totalError
                     }
                     mode={mode}
+                    dailyRank={
+                        dailyRank
+                    }
+                    percentile={
+                        percentile
+                    }
                 />
             )}
         </div>

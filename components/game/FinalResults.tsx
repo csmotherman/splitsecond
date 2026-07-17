@@ -16,6 +16,10 @@ type FinalResultsProps = {
     results: RoundResult[];
     totalError: number;
     mode: "normal" | "extreme";
+
+    dailyRank?: number;
+    percentile?: number;
+
     onViewLeaderboard?: () => void;
 };
 
@@ -35,6 +39,8 @@ export default function FinalResults({
     results,
     totalError,
     mode,
+    dailyRank,
+    percentile,
     onViewLeaderboard,
 }: FinalResultsProps) {
     
@@ -242,6 +248,29 @@ export default function FinalResults({
                         </div>
                     </div>
                 </div>
+                <div className="mt-5 grid grid-cols-2 gap-3 w-full">
+                <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/10 p-3 text-center">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-yellow-400">
+                        Daily Rank
+                    </div>
+
+                    <div className="mt-1 text-2xl font-black text-white">
+                        {dailyRank ? `#${dailyRank}` : "--"}
+                    </div>
+                </div>
+
+                <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/10 p-3 text-center">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-cyan-400">
+                        All-Time
+                    </div>
+
+                    <div className="mt-1 text-lg font-black text-white">
+                        {percentile
+                            ? `Top ${(100 - percentile).toFixed(1)}%`
+                            : "--"}
+                    </div>
+                </div>
+            </div>
 
                 {/* Vertical List Breakdown */}
                 <div className="mt-6 space-y-2">
@@ -286,10 +315,31 @@ export default function FinalResults({
                         <motion.button
                             whileTap={{ scale: 0.96 }}
                             onClick={onViewLeaderboard}
-                            className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-zinc-800/80 hover:bg-zinc-700 text-white py-3.5 px-5 font-bold text-sm transition shadow-lg"
+                            className="
+                                        flex-1
+                                        flex
+                                        items-center
+                                        justify-center
+                                        gap-2
+                                        rounded-xl
+                                        border
+                                        border-white/10
+                                        bg-zinc-800/80
+                                        hover:bg-zinc-700
+                                        text-white
+                                        py-3.5
+                                        px-4
+                                        font-bold
+                                        text-sm
+                                        transition
+                                        shadow-lg
+                                        "
                             aria-label="View Leaderboard"
                         >
-                            <Trophy className="w-4 h-4 text-yellow-400" />
+                            <>
+                                <Trophy className="w-4 h-4 text-yellow-400" />
+                                <span>Leaderboard</span>
+                            </>
                         </motion.button>
                     )}
                 </div>
