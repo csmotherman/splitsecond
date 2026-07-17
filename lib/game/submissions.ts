@@ -202,3 +202,64 @@ export async function isChallengeCompleted(
 
     return data;
 }
+export async function getSubmissionStats(
+    challengeId: string,
+    totalError: number
+) {
+    const { count: betterToday, error: rankError } =
+        await supabase
+            .from("daily_submissions")
+            .select("*", {
+                count: "exact",
+                head: true,
+            })
+            .eq("challenge_id", challengeId)
+            .eq("completed", true)
+            .lt("total_error", totalError);
+
+    if (rankError) {
+        throw rankError;
+    }
+
+    const dailyRank =
+        (betterToday ?? 0) + 1;
+
+    const { count: totalRuns, error: totalErrorQuery } =
+        await supabase
+            .from("daily_submissions")
+            .select("*", {
+                count: "exact",
+                head: true,
+            })
+            .eq("completed", true);
+
+    if (totalErrorQuery) {
+        throw totalErrorQuery;
+    }
+
+    const { count: worseRuns, error: percentileError } =
+        await supabase
+            .from("daily_submissions")
+            .select("*", {
+                count: "exact",
+                head: true,
+            })
+            .eq("completed", true)
+            .gt("total_error", totalError);
+
+    if (percentileError) {
+        throw percentileError;
+    }
+
+    const percentile =
+        totalRuns && totalRuns > 0
+            ? ((worseRuns ?? 0) /
+                  totalRuns) *
+              100
+            : 0;
+
+    return {
+        dailyRank,
+        percentile,
+    };
+}

@@ -53,11 +53,7 @@ export default function Share({
                 ? `#${rank} Today`
                 : null,
             "",
-            "No timer.",
-            "No counting.",
-            "Just instinct.",
             "",
-            "Can you beat me?",
             "playsplitsecond.com",
         ]
             .filter(Boolean)

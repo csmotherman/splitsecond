@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import ActionButton from "./ActionButton";
 import FinalResults from "./FinalResults";
@@ -12,6 +12,7 @@ import TargetHeader from "./TargetHeader";
 import {
     saveRoundResult,
     completeSubmission,
+    getSubmissionStats,
 } from "@/lib/game/submissions";
 
 type GamePhase =
