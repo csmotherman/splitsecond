@@ -6,13 +6,8 @@ async function getCurrentUser() {
         error,
     } = await supabase.auth.getUser();
 
-    if (error) {
-        throw error;
-    }
-
-    if (!user) {
-        throw new Error("User not authenticated");
-    }
+    if (error) throw error;
+    if (!user) throw new Error("User not authenticated");
 
     return user;
 }
@@ -29,13 +24,8 @@ export async function getOrCreateSubmission(
         .eq("challenge_id", challengeId)
         .maybeSingle();
 
-    if (fetchError) {
-        throw fetchError;
-    }
-
-    if (existing) {
-        return existing;
-    }
+    if (fetchError) throw fetchError;
+    if (existing) return existing;
 
     const { data, error } = await supabase
         .from("daily_submissions")
@@ -49,9 +39,7 @@ export async function getOrCreateSubmission(
         .select()
         .single();
 
-    if (error) {
-        throw error;
-    }
+    if (error) throw error;
 
     return data;
 }
@@ -68,9 +56,7 @@ export async function getSubmission(
         .eq("challenge_id", challengeId)
         .maybeSingle();
 
-    if (error) {
-        throw error;
-    }
+    if (error) throw error;
 
     return data;
 }
@@ -92,9 +78,72 @@ export async function saveRoundResult(
         .update(updateData)
         .eq("id", submissionId);
 
-    if (error) {
-        throw error;
-    }
+    if (error) throw error;
+}
+
+export async function getSubmissionStats(
+    challengeId: string,
+    totalError: number
+) {
+    const { count: betterToday, error: dailyRankError } =
+        await supabase
+            .from("daily_submissions")
+            .select("id", {
+                count: "exact",
+                head: true,
+            })
+            .eq("challenge_id", challengeId)
+            .eq("completed", true)
+            .lt("total_error", totalError);
+
+    if (dailyRankError) throw dailyRankError;
+
+    const { count: betterAllTime, error: allTimeRankError } =
+        await supabase
+            .from("daily_submissions")
+            .select("id", {
+                count: "exact",
+                head: true,
+            })
+            .eq("completed", true)
+            .lt("total_error", totalError);
+
+    if (allTimeRankError) throw allTimeRankError;
+
+    const { count: totalRuns, error: totalRunsError } =
+        await supabase
+            .from("daily_submissions")
+            .select("id", {
+                count: "exact",
+                head: true,
+            })
+            .eq("completed", true);
+
+    if (totalRunsError) throw totalRunsError;
+
+    const { count: worseRuns, error: percentileError } =
+        await supabase
+            .from("daily_submissions")
+            .select("id", {
+                count: "exact",
+                head: true,
+            })
+            .eq("completed", true)
+            .gt("total_error", totalError);
+
+    if (percentileError) throw percentileError;
+
+    const completedRunCount = totalRuns ?? 0;
+
+    return {
+        dailyRank: (betterToday ?? 0) + 1,
+        allTimeRank: (betterAllTime ?? 0) + 1,
+        totalRuns: completedRunCount,
+        percentile:
+            completedRunCount > 0
+                ? ((worseRuns ?? 0) / completedRunCount) * 100
+                : 0,
+    };
 }
 
 export async function completeSubmission(
@@ -120,68 +169,15 @@ export async function completeSubmission(
             .from("daily_submissions")
             .update(updateData)
             .eq("id", submissionId)
-            .select("id, challenge_id, total_error")
+            .select("challenge_id, total_error")
             .single();
 
-    if (updateError) {
-        throw updateError;
-    }
+    if (updateError) throw updateError;
 
-    const { count: betterToday } =
-        await supabase
-            .from("daily_submissions")
-            .select("*", {
-                count: "exact",
-                head: true,
-            })
-            .eq(
-                "challenge_id",
-                submission.challenge_id
-            )
-            .eq("completed", true)
-            .lt(
-                "total_error",
-                submission.total_error
-            );
-
-    const dailyRank =
-        (betterToday ?? 0) + 1;
-
-    const { count: totalRuns } =
-        await supabase
-            .from("daily_submissions")
-            .select("*", {
-                count: "exact",
-                head: true,
-            })
-            .eq("completed", true);
-
-    const { count: worseRuns } =
-        await supabase
-            .from("daily_submissions")
-            .select("*", {
-                count: "exact",
-                head: true,
-            })
-            .eq("completed", true)
-            .gt(
-                "total_error",
-                submission.total_error
-            );
-
-    const percentile =
-        totalRuns && totalRuns > 0
-            ? (
-                  ((worseRuns ?? 0) /
-                      totalRuns) *
-                  100
-              )
-            : 0;
-
-    return {
-        dailyRank,
-        percentile,
-    };
+    return getSubmissionStats(
+        submission.challenge_id,
+        Number(submission.total_error)
+    );
 }
 
 export async function isChallengeCompleted(
@@ -196,77 +192,7 @@ export async function isChallengeCompleted(
         .eq("challenge_id", challengeId)
         .maybeSingle();
 
-    if (error) {
-        throw error;
-    }
+    if (error) throw error;
 
     return data;
-}
-export async function getSubmissionStats(
-    challengeId: string,
-    totalError: number
-) {
-    console.log("getSubmissionStats input", {
-        challengeId,
-        totalError,
-    });
-    const { count: betterToday, error: rankError } =
-        await supabase
-            .from("daily_submissions")
-            .select("*", {
-                count: "exact",
-                head: true,
-            })
-            .eq("challenge_id", challengeId)
-            .eq("completed", true)
-            .lt("total_error", totalError);
-
-    if (rankError) {
-        throw rankError;
-    }
-
-    const dailyRank =
-        (betterToday ?? 0) + 1;
-
-    const { count: totalRuns, error: totalErrorQuery } =
-        await supabase
-            .from("daily_submissions")
-            .select("*", {
-                count: "exact",
-                head: true,
-            })
-            .eq("completed", true);
-
-    if (totalErrorQuery) {
-        throw totalErrorQuery;
-    }
-
-    const { count: worseRuns, error: percentileError } =
-        await supabase
-            .from("daily_submissions")
-            .select("*", {
-                count: "exact",
-                head: true,
-            })
-            .eq("completed", true)
-            .gt("total_error", totalError);
-
-    if (percentileError) {
-        throw percentileError;
-    }
-
-    const percentile =
-        totalRuns && totalRuns > 0
-            ? ((worseRuns ?? 0) /
-                  totalRuns) *
-              100
-            : 0;
-    console.log("getSubmissionStats output", {
-        dailyRank,
-        percentile,
-    });
-    return {
-        dailyRank,
-        percentile,
-    };
 }
