@@ -41,199 +41,110 @@ export default function FinalResults({
 
     // Fine-tuned 16-tier grade mapping
     const getGrade = (): GradeConfig => {
-        if (totalError <= 0.05)
-            return {
-                grade: "GOAT",
-                subtext: "PERFECT TIMING",
-                emoji: "👑",
-                color: "from-amber-200 via-yellow-400 to-amber-500",
-                glowColor: "rgba(245, 158, 11, 0.45)",
-                bgGradient: "from-amber-500/20 via-yellow-500/10 to-amber-950/40",
-                borderGlow: "border-amber-400/50 shadow-amber-500/20",
-                isShining: true,
-                triggerConfetti: true,
-            };
-
-        if (totalError <= 0.10)
-            return {
-                grade: "S+",
-                subtext: "GODLIKE",
-                emoji: "💎",
-                color: "from-cyan-200 via-teal-300 to-emerald-300",
-                glowColor: "rgba(6, 182, 212, 0.4)",
-                bgGradient: "from-cyan-500/20 via-teal-500/10 to-cyan-950/40",
-                borderGlow: "border-cyan-400/50 shadow-cyan-500/20",
-                isShining: true,
-                triggerConfetti: true,
-            };
-
-        if (totalError <= 0.15)
-            return {
-                grade: "S",
-                subtext: "INSANE ACCURACY",
-                emoji: "💎",
-                color: "from-cyan-300 to-teal-400",
-                glowColor: "rgba(6, 182, 212, 0.35)",
-                bgGradient: "from-cyan-500/20 via-teal-500/10 to-cyan-950/40",
-                borderGlow: "border-cyan-400/40",
-                triggerConfetti: true,
-            };
-
-        if (totalError <= 0.20)
-            return {
-                grade: "S-",
-                subtext: "MASTER CLASS",
-                emoji: "🔥",
-                color: "from-teal-300 to-emerald-400",
-                glowColor: "rgba(20, 184, 166, 0.3)",
-                bgGradient: "from-teal-500/20 via-emerald-500/10 to-teal-950/40",
-                borderGlow: "border-teal-400/40",
-                triggerConfetti: true,
-            };
-
-        if (totalError <= 0.30)
-            return {
-                grade: "A+",
-                subtext: "LEGENDARY",
-                emoji: "🏆",
-                color: "from-purple-300 to-fuchsia-400",
-                glowColor: "rgba(168, 85, 247, 0.35)",
-                bgGradient: "from-purple-500/20 via-fuchsia-500/10 to-purple-950/40",
-                borderGlow: "border-purple-400/40",
-                triggerConfetti: true,
-            };
-
-        if (totalError <= 0.40)
-            return {
-                grade: "A",
-                subtext: "SUPER SHARP",
-                emoji: "⚡",
-                color: "from-purple-400 to-pink-400",
-                glowColor: "rgba(168, 85, 247, 0.25)",
-                bgGradient: "from-purple-500/15 via-fuchsia-500/10 to-purple-950/30",
-                borderGlow: "border-purple-400/30",
-            };
-
-        if (totalError <= 0.5)
-            return {
-                grade: "A-",
-                subtext: "VERY IMPRESSIVE",
-                emoji: "🎯",
-                color: "from-fuchsia-400 to-purple-500",
-                glowColor: "rgba(192, 132, 252, 0.2)",
-                bgGradient: "from-fuchsia-500/15 via-purple-500/10 to-zinc-950/30",
-                borderGlow: "border-fuchsia-400/30",
-            };
-
-        if (totalError <= 0.7)
-            return {
-                grade: "B+",
-                subtext: "GREAT TIMING",
-                emoji: "✨",
-                color: "from-emerald-300 to-teal-400",
-                glowColor: "rgba(16, 185, 129, 0.25)",
-                bgGradient: "from-emerald-500/15 via-teal-500/10 to-emerald-950/30",
-                borderGlow: "border-emerald-400/30",
-            };
-
-        if (totalError <= 0.9)
-            return {
-                grade: "B",
-                subtext: "SOLID PERFORMER",
-                emoji: "👍",
-                color: "from-emerald-400 to-green-500",
-                glowColor: "rgba(16, 185, 129, 0.2)",
-                bgGradient: "from-emerald-500/10 via-zinc-900/10 to-zinc-950/30",
-                borderGlow: "border-emerald-500/20",
-            };
-
-        if (totalError <= 1)
-            return {
-                grade: "B-",
-                subtext: "ON TARGET",
-                emoji: "👌",
-                color: "from-green-400 to-teal-500",
-                glowColor: "rgba(34, 197, 94, 0.15)",
-                bgGradient: "from-green-500/10 via-zinc-900/10 to-zinc-950/30",
-                borderGlow: "border-green-500/20",
-            };
-
-        if (totalError <= 1.15)
-            return {
-                grade: "C+",
-                subtext: "PRETTY GOOD",
-                emoji: "🙂",
-                color: "from-blue-300 to-indigo-400",
-                glowColor: "rgba(59, 130, 246, 0.2)",
-                bgGradient: "from-blue-500/15 via-indigo-500/10 to-blue-950/30",
-                borderGlow: "border-blue-400/30",
-            };
-
-        if (totalError <= 1.25)
-            return {
-                grade: "C",
-                subtext: "AVERAGE",
-                emoji: "😐",
-                color: "from-blue-400 to-indigo-500",
-                glowColor: "rgba(59, 130, 246, 0.15)",
-                bgGradient: "from-blue-500/10 via-zinc-900/10 to-zinc-950/30",
-                borderGlow: "border-blue-500/20",
-            };
-
-        if (totalError <= 1.5)
-            return {
-                grade: "C-",
-                subtext: "ROOM TO IMPROVE",
-                emoji: "🤏",
-                color: "from-sky-400 to-blue-500",
-                glowColor: "rgba(56, 189, 248, 0.12)",
-                bgGradient: "from-sky-500/10 via-zinc-900/10 to-zinc-950/30",
-                borderGlow: "border-sky-500/20",
-            };
-
-        if (totalError <= 2)
-            return {
-                grade: "D+",
-                subtext: "SLIGHTLY OFF",
-                emoji: "👀",
-                color: "from-amber-300 to-orange-400",
-                glowColor: "rgba(245, 158, 11, 0.15)",
-                bgGradient: "from-amber-500/10 via-zinc-900/10 to-zinc-950/30",
-                borderGlow: "border-amber-500/20",
-            };
-
-        if (totalError <= 2.5)
-            return {
-                grade: "D",
-                subtext: "NOT QUITE",
-                emoji: "⚠️",
-                color: "from-orange-400 to-amber-500",
-                glowColor: "rgba(249, 115, 22, 0.15)",
-                bgGradient: "from-orange-500/10 via-zinc-900/10 to-zinc-950/30",
-                borderGlow: "border-orange-500/20",
-            };
-
-        if (totalError <= 3)
-            return {
-                grade: "D-",
-                subtext: "OFF PACED",
-                emoji: "📉",
-                color: "from-orange-500 to-rose-400",
-                glowColor: "rgba(249, 115, 22, 0.12)",
-                bgGradient: "from-orange-500/10 via-zinc-900/10 to-zinc-950/30",
-                borderGlow: "border-orange-500/20",
-            };
-
+    if (totalError <= 0.25)
         return {
-            grade: "F",
-            subtext: "LOST IN TIME",
-            emoji: "💀",
-            color: "from-rose-400 to-red-600",
-            glowColor: "rgba(244, 63, 94, 0.25)",
-            bgGradient: "from-rose-950/30 via-red-950/20 to-zinc-950/50",
-            borderGlow: "border-rose-500/30",
+            grade: "GOAT",
+            subtext: "PERFECT TIMING",
+            emoji: "👑",
+            color: "from-amber-200 via-yellow-400 to-amber-500",
+            glowColor: "rgba(245, 158, 11, 0.45)",
+            bgGradient: "from-amber-500/20 via-yellow-500/10 to-amber-950/40",
+            borderGlow: "border-amber-400/50 shadow-amber-500/20",
+            isShining: true,
+            triggerConfetti: true,
         };
+
+    if (totalError <= 0.5)
+        return {
+            grade: "S+",
+            subtext: "GODLIKE",
+            emoji: "💎",
+            color: "from-cyan-200 via-teal-300 to-emerald-300",
+            glowColor: "rgba(6, 182, 212, 0.4)",
+            bgGradient: "from-cyan-500/20 via-teal-500/10 to-cyan-950/40",
+            borderGlow: "border-cyan-400/50 shadow-cyan-500/20",
+            isShining: true,
+            triggerConfetti: true,
+        };
+
+    if (totalError <= 0.75)
+        return {
+            grade: "S",
+            subtext: "INSANE ACCURACY",
+            emoji: "💎",
+            color: "from-cyan-300 to-teal-400",
+            glowColor: "rgba(6, 182, 212, 0.35)",
+            bgGradient: "from-cyan-500/20 via-teal-500/10 to-cyan-950/40",
+            borderGlow: "border-cyan-400/40",
+            triggerConfetti: true,
+        };
+
+    if (totalError <= 1.0)
+        return {
+            grade: "A+",
+            subtext: "LEGENDARY",
+            emoji: "🏆",
+            color: "from-purple-300 to-fuchsia-400",
+            glowColor: "rgba(168, 85, 247, 0.35)",
+            bgGradient: "from-purple-500/20 via-fuchsia-500/10 to-purple-950/40",
+            borderGlow: "border-purple-400/40",
+            triggerConfetti: true,
+        };
+
+    if (totalError <= 1.5)
+        return {
+            grade: "A",
+            subtext: "SUPER SHARP",
+            emoji: "⚡",
+            color: "from-purple-400 to-pink-400",
+            glowColor: "rgba(168, 85, 247, 0.25)",
+            bgGradient: "from-purple-500/15 via-fuchsia-500/10 to-purple-950/30",
+            borderGlow: "border-purple-400/30",
+        };
+
+    if (totalError <= 2.0)
+        return {
+            grade: "B",
+            subtext: "GREAT TIMING",
+            emoji: "✨",
+            color: "from-emerald-300 to-teal-400",
+            glowColor: "rgba(16, 185, 129, 0.25)",
+            bgGradient: "from-emerald-500/15 via-teal-500/10 to-emerald-950/30",
+            borderGlow: "border-emerald-400/30",
+        };
+
+    if (totalError <= 3.0)
+        return {
+            grade: "C",
+            subtext: "SOLID PERFORMANCE",
+            emoji: "👍",
+            color: "from-blue-400 to-indigo-500",
+            glowColor: "rgba(59, 130, 246, 0.15)",
+            bgGradient: "from-blue-500/10 via-zinc-900/10 to-zinc-950/30",
+            borderGlow: "border-blue-500/20",
+        };
+
+    if (totalError <= 5.0)
+        return {
+            grade: "D",
+            subtext: "ROOM TO IMPROVE",
+            emoji: "⚠️",
+            color: "from-orange-400 to-amber-500",
+            glowColor: "rgba(249, 115, 22, 0.15)",
+            bgGradient: "from-orange-500/10 via-zinc-900/10 to-zinc-950/30",
+            borderGlow: "border-orange-500/20",
+        };
+
+    return {
+        grade: "F",
+        subtext: "LOST IN TIME",
+        emoji: "💀",
+        color: "from-rose-400 to-red-600",
+        glowColor: "rgba(244, 63, 94, 0.25)",
+        bgGradient: "from-rose-950/30 via-red-950/20 to-zinc-950/50",
+        borderGlow: "border-rose-500/30",
     };
+};
 
     const resultGrade = getGrade();
 
