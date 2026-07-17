@@ -34,6 +34,7 @@ type RoundResult = {
 
 type Submission = {
     id: string;
+    challenge_id: string;
 
     current_round: number | null;
     completed: boolean | null;
@@ -157,6 +158,41 @@ export default function GameContainer({
         );
 
     const target = targets[currentRound];
+    useEffect(() => {
+        async function loadStats() {
+            if (
+                !submission?.completed ||
+                submission.total_error == null
+            ) {
+                return;
+            }
+
+            try {
+                const stats =
+                    await getSubmissionStats(
+                        submission.challenge_id,
+                        Number(
+                            submission.total_error
+                        )
+                    );
+
+                setDailyRank(
+                    stats.dailyRank
+                );
+
+                setPercentile(
+                    stats.percentile
+                );
+            } catch (err) {
+                console.error(
+                    "Failed to load stats:",
+                    err
+                );
+            }
+        }
+
+        loadStats();
+    }, [submission]);
 
     const handleButtonPress = async () => {
         if (!isRunning) {
