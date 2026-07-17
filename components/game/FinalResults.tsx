@@ -360,9 +360,8 @@ export default function FinalResults({
                         <Share
                             results={results}
                             totalError={totalError}
-                            grade={resultGrade.grade}
-                            rank={dailyRank}
                             allTimeRank={allTimeRank}
+                            totalRuns={totalRuns}
                         />
 
                         <Link
@@ -392,10 +391,10 @@ export default function FinalResults({
                             <X className="h-4 w-4" />
                         </button>
 
-                        <div className="flex justify-center">
+                        <div className="mx-auto flex justify-center">
                             {achievement.icon}
                         </div>
-                        <p className={`mt-4 text-xs font-black uppercase tracking-[0.28em] ${achievement.accent}`}>
+                        <p className={`mt-4 text-xs font-black uppercase tracking-[0.3em] ${achievement.accent}`}>
                             New Achievement
                         </p>
                         <h2 className="mt-2 text-3xl font-black text-white">
@@ -404,7 +403,6 @@ export default function FinalResults({
                         <p className="mt-3 text-sm leading-relaxed text-zinc-300">
                             {achievement.description}
                         </p>
-
                         <div className="mt-5 rounded-2xl border border-white/10 bg-black/30 p-4">
                             <div className="text-xs font-bold uppercase tracking-widest text-zinc-500">
                                 Total Error
@@ -412,8 +410,12 @@ export default function FinalResults({
                             <div className="mt-1 text-4xl font-black text-white">
                                 {totalError.toFixed(3)}s
                             </div>
+                            {typeof totalRuns === "number" && (
+                                <div className="mt-2 text-xs font-semibold text-zinc-400">
+                                    #{allTimeRank} of {totalRuns} completed runs
+                                </div>
+                            )}
                         </div>
-
                         <button
                             type="button"
                             onClick={onCloseAchievement}
