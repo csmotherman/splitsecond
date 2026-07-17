@@ -20,7 +20,7 @@ jobs:
 
       - run: npm install
 
-      - run: npx tsx scripts/finalizeDailyChallenge.ts
+      - run: npx tsx scripts/create-daily-challenge.yml
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
