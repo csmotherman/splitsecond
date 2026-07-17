@@ -1,14 +1,14 @@
-name: Finalize Daily Challenge
+name: Create Daily Challenge
 
 on:
   schedule:
-    # 12:05 AM Eastern during daylight saving time
-    - cron: "5 4 * * *"
+    # 11:58 PM Eastern (EDT)
+    - cron: "58 3 * * *"
 
   workflow_dispatch:
 
 jobs:
-  finalize:
+  create:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,9 +18,9 @@ jobs:
         with:
           node-version: 22
 
-      - run: npm install
+      - run: npm ci
 
-      - run: npx tsx scripts/create-daily-challenge.yml
+      - run: npx tsx scripts/createDailyChallenge.ts
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
