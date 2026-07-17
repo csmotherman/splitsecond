@@ -12,9 +12,8 @@ type RoundResult = {
 type ShareProps = {
     results: RoundResult[];
     totalError: number;
-    grade: string;
-    rank?: number;
     allTimeRank?: number;
+    totalRuns?: number;
 };
 
 function getShareEmoji(error: number) {
@@ -25,21 +24,37 @@ function getShareEmoji(error: number) {
     return "🔴";
 }
 
-function getAchievementText(allTimeRank?: number) {
-    if (allTimeRank === 1) return "🥇 WORLD RECORD";
-    if (allTimeRank && allTimeRank <= 5)
-        return `💎 #${allTimeRank} ALL-TIME`;
-    if (allTimeRank && allTimeRank <= 10)
-        return `🔥 #${allTimeRank} ALL-TIME`;
-    return null;
+function getAchievementText(
+    allTimeRank?: number,
+    totalRuns?: number
+) {
+    if (
+        typeof allTimeRank !== "number" ||
+        typeof totalRuns !== "number"
+    ) {
+        return null;
+    }
+
+    if (allTimeRank === 1) {
+        return `🥇 WORLD RECORD of ${totalRuns} runs`;
+    }
+
+    if (allTimeRank <= 5) {
+        return `💎 #${allTimeRank} ALL-TIME of ${totalRuns} runs`;
+    }
+
+    if (allTimeRank <= 10) {
+        return `🔥 #${allTimeRank} ALL-TIME of ${totalRuns} runs`;
+    }
+
+    return `#${allTimeRank} ALL-TIME of ${totalRuns} runs`;
 }
 
 export default function Share({
     results,
     totalError,
-    grade,
-    rank,
     allTimeRank,
+    totalRuns,
 }: ShareProps) {
     const [copied, setCopied] = useState(false);
 
@@ -54,19 +69,10 @@ export default function Share({
 
         const shareText = [
             "SplitSecond",
-            getAchievementText(allTimeRank),
-            "",
+            getAchievementText(allTimeRank, totalRuns),
             roundBreakdown,
-            "",
-            `${grade} GRADE`,
             "TOTAL ERROR",
-            `+${totalError.toFixed(3)}s`,
-            rank ? `#${rank} Today` : null,
-            allTimeRank
-                ? `#${allTimeRank} All-Time`
-                : null,
-            "",
-            "Can you beat me?",
+            `+${totalError.toFixed(2)}`,
             "playsplitsecond.com",
         ]
             .filter(Boolean)
