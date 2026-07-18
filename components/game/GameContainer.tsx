@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 import ActionButton from "./ActionButton";
 import FinalResults from "./FinalResults";
@@ -15,15 +15,11 @@ import {
     getSubmissionStats,
 } from "@/lib/game/submissions";
 
-type GamePhase =
-    | "waiting"
-    | "result"
-    | "finished";
-
+type GamePhase = "waiting" | "result" | "finished";
 type Mode = "normal" | "extreme";
-type GameMode = "daily" | "practice";
+type GameMode = "daily" | "practice" | "duel";
 
-type RoundResult = {
+export type RoundResult = {
     target: number;
     actual: number;
     error: number;
@@ -46,12 +42,7 @@ type Submission = {
     round_5_actual: number | null;
     total_error?: number | null;
     submitted_at?: string | null;
-    [key: string]:
-        | string
-        | number
-        | boolean
-        | null
-        | undefined;
+    [key: string]: string | number | boolean | null | undefined;
 };
 
 type GameContainerProps = {
@@ -59,6 +50,8 @@ type GameContainerProps = {
     mode: Mode;
     gameMode?: GameMode;
     submission?: Submission;
+    onComplete?: (results: RoundResult[], totalError: number) => void;
+    finishedContent?: ReactNode;
 };
 
 export default function GameContainer({
@@ -66,74 +59,44 @@ export default function GameContainer({
     mode,
     gameMode = "daily",
     submission,
+    onComplete,
+    finishedContent,
 }: GameContainerProps) {
-    const [phase, setPhase] =
-        useState<GamePhase>(
-            gameMode === "practice"
-                ? "waiting"
-                : submission?.completed
-                    ? "finished"
-                    : "waiting"
-        );
+    const isLocalGame = gameMode !== "daily";
+    const [phase, setPhase] = useState<GamePhase>(
+        isLocalGame ? "waiting" : submission?.completed ? "finished" : "waiting"
+    );
+    const [currentRound, setCurrentRound] = useState(
+        isLocalGame ? 0 : Math.max(0, (submission?.current_round ?? 1) - 1)
+    );
+    const [results, setResults] = useState<RoundResult[]>(() => {
+        if (isLocalGame) return [];
 
-    const [currentRound, setCurrentRound] =
-        useState(
-            gameMode === "practice"
-                ? 0
-                : Math.max(
-                    0,
-                    (submission?.current_round ?? 1) - 1
-                )
-        );
-
-    const [results, setResults] =
-        useState<RoundResult[]>(() => {
-            if (gameMode === "practice") return [];
-
-            const restored: RoundResult[] = [];
-
-            for (let i = 1; i <= 5; i++) {
-                const actual =
-                    submission?.[
-                        `round_${i}_actual` as keyof Submission
-                    ];
-                const error =
-                    submission?.[
-                        `round_${i}_error` as keyof Submission
-                    ];
-
-                if (
-                    typeof actual === "number" &&
-                    typeof error === "number"
-                ) {
-                    restored.push({
-                        target: targets[i - 1],
-                        actual,
-                        error,
-                    });
-                }
+        const restored: RoundResult[] = [];
+        for (let i = 1; i <= 5; i++) {
+            const actual = submission?.[`round_${i}_actual` as keyof Submission];
+            const error = submission?.[`round_${i}_error` as keyof Submission];
+            if (typeof actual === "number" && typeof error === "number") {
+                restored.push({ target: targets[i - 1], actual, error });
             }
-
-            return restored;
-        });
+        }
+        return restored;
+    });
 
     const [actualTime, setActualTime] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [startTimestamp, setStartTimestamp] =
-        useState<number | null>(null);
-    const [dailyRank, setDailyRank] =
-        useState<number>();
-    const [percentile, setPercentile] =
-        useState<number>();
-    const [allTimeRank, setAllTimeRank] =
-        useState<number>();
-    const [totalRuns, setTotalRuns] =
-        useState<number>();
-    const [showAchievement, setShowAchievement] =
-        useState(false);
+    const [startTimestamp, setStartTimestamp] = useState<number | null>(null);
+    const [dailyRank, setDailyRank] = useState<number>();
+    const [percentile, setPercentile] = useState<number>();
+    const [allTimeRank, setAllTimeRank] = useState<number>();
+    const [totalRuns, setTotalRuns] = useState<number>();
+    const [showAchievement, setShowAchievement] = useState(false);
 
     const target = targets[currentRound];
+    const totalError = Number(
+        results.reduce((sum, result) => sum + result.error, 0).toFixed(2)
+    );
 
     useEffect(() => {
         async function loadStats() {
@@ -141,35 +104,24 @@ export default function GameContainer({
                 gameMode !== "daily" ||
                 !submission?.completed ||
                 submission.total_error == null
-            ) {
-                return;
-            }
+            ) return;
 
             try {
                 const stats = await getSubmissionStats(
                     submission.challenge_id,
                     Number(submission.total_error)
                 );
-
                 setDailyRank(stats.dailyRank);
                 setPercentile(stats.percentile);
                 setAllTimeRank(stats.allTimeRank);
                 setTotalRuns(stats.totalRuns);
             } catch (error) {
-                console.error(
-                    "Failed to load submission stats:",
-                    error
-                );
+                console.error("Failed to load submission stats:", error);
             }
         }
 
         void loadStats();
-    }, [
-        gameMode,
-        submission?.challenge_id,
-        submission?.completed,
-        submission?.total_error,
-    ]);
+    }, [gameMode, submission?.challenge_id, submission?.completed, submission?.total_error]);
 
     const handleButtonPress = async () => {
         if (!isRunning) {
@@ -180,27 +132,17 @@ export default function GameContainer({
 
         if (startTimestamp === null) return;
 
-        const elapsed =
-            (performance.now() - startTimestamp) / 1000;
+        const elapsed = (performance.now() - startTimestamp) / 1000;
         const roundedActual = Number(elapsed.toFixed(2));
-        const error = Number(
-            Math.abs(target - roundedActual).toFixed(2)
-        );
+        const error = Number(Math.abs(target - roundedActual).toFixed(2));
         const roundNumber = currentRound + 1;
-        const newResult: RoundResult = {
-            target,
-            actual: roundedActual,
-            error,
-        };
+        const newResult: RoundResult = { target, actual: roundedActual, error };
         const updatedResults = [...results, newResult];
 
         try {
             setSaving(true);
 
-            if (
-                gameMode === "daily" &&
-                submission
-            ) {
+            if (gameMode === "daily" && submission) {
                 await saveRoundResult(
                     submission.id,
                     roundNumber,
@@ -211,27 +153,18 @@ export default function GameContainer({
                 if (roundNumber === targets.length) {
                     const finalTotalError = Number(
                         updatedResults
-                            .reduce(
-                                (sum, result) =>
-                                    sum + result.error,
-                                0
-                            )
+                            .reduce((sum, result) => sum + result.error, 0)
                             .toFixed(2)
                     );
-
-                    const stats =
-                        await completeSubmission(
-                            submission.id,
-                            finalTotalError
-                        );
-
+                    const stats = await completeSubmission(
+                        submission.id,
+                        finalTotalError
+                    );
                     setDailyRank(stats.dailyRank);
                     setPercentile(stats.percentile);
                     setAllTimeRank(stats.allTimeRank);
                     setTotalRuns(stats.totalRuns);
-                    setShowAchievement(
-                        stats.allTimeRank <= 10
-                    );
+                    setShowAchievement(stats.allTimeRank <= 10);
                 }
             }
 
@@ -241,10 +174,7 @@ export default function GameContainer({
             setStartTimestamp(null);
             setPhase("result");
         } catch (error) {
-            console.error(
-                "Failed to save round result:",
-                error
-            );
+            console.error("Failed to save round result:", error);
         } finally {
             setSaving(false);
         }
@@ -254,6 +184,10 @@ export default function GameContainer({
         const nextIndex = currentRound + 1;
 
         if (nextIndex >= targets.length) {
+            const finalTotalError = Number(
+                results.reduce((sum, result) => sum + result.error, 0).toFixed(2)
+            );
+            onComplete?.(results, finalTotalError);
             setPhase("finished");
             return;
         }
@@ -265,16 +199,6 @@ export default function GameContainer({
         setPhase("waiting");
     };
 
-    const totalError = Number(
-        results
-            .reduce(
-                (sum, result) =>
-                    sum + result.error,
-                0
-            )
-            .toFixed(2)
-    );
-
     return (
         <div className="mx-auto flex w-full max-w-xl flex-col gap-8 px-4 py-8">
             {phase !== "finished" && (
@@ -284,12 +208,10 @@ export default function GameContainer({
                         totalRounds={targets.length}
                         mode={mode}
                     />
-
                     <ProgressDots
                         currentRound={currentRound}
                         totalRounds={targets.length}
                     />
-
                     <TargetDisplay target={target} />
                 </>
             )}
@@ -301,21 +223,11 @@ export default function GameContainer({
                             ? "Tap again when you think you've reached the target."
                             : "Tap the button to start the timer."}
                     </p>
-
                     {saving && gameMode === "daily" && (
-                        <p className="text-green-400">
-                            Saving round...
-                        </p>
+                        <p className="text-green-400">Saving round...</p>
                     )}
-
                     <ActionButton
-                        label={
-                            saving
-                                ? "SAVING..."
-                                : isRunning
-                                    ? "STOP"
-                                    : "START"
-                        }
+                        label={saving ? "SAVING..." : isRunning ? "STOP" : "START"}
                         isRunning={isRunning}
                         disabled={saving}
                         onClick={handleButtonPress}
@@ -328,37 +240,29 @@ export default function GameContainer({
                     <ResultReveal
                         target={target}
                         actual={actualTime}
-                        error={Math.abs(
-                            target - actualTime
-                        )}
+                        error={Math.abs(target - actualTime)}
                     />
-
                     <ActionButton
-                        label={
-                            currentRound ===
-                            targets.length - 1
-                                ? "RESULTS"
-                                : "NEXT"
-                        }
+                        label={currentRound === targets.length - 1 ? "RESULTS" : "NEXT"}
                         onClick={nextRound}
                     />
                 </div>
             )}
 
             {phase === "finished" && (
-                <FinalResults
-                    results={results}
-                    totalError={totalError}
-                    mode={mode}
-                    dailyRank={dailyRank}
-                    percentile={percentile}
-                    allTimeRank={allTimeRank}
-                    totalRuns={totalRuns}
-                    showAchievement={showAchievement}
-                    onCloseAchievement={() =>
-                        setShowAchievement(false)
-                    }
-                />
+                finishedContent ?? (
+                    <FinalResults
+                        results={results}
+                        totalError={totalError}
+                        mode={mode}
+                        dailyRank={dailyRank}
+                        percentile={percentile}
+                        allTimeRank={allTimeRank}
+                        totalRuns={totalRuns}
+                        showAchievement={showAchievement}
+                        onCloseAchievement={() => setShowAchievement(false)}
+                    />
+                )
             )}
         </div>
     );
