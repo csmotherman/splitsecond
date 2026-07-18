@@ -24,7 +24,7 @@ export default function DuelMenuPage() {
             setIsAuthenticated(Boolean(user));
             setCheckingAuth(false);
         }
-        checkAuthentication();
+        void checkAuthentication();
     }, []);
 
     async function handleCreateDuel() {
@@ -78,7 +78,7 @@ export default function DuelMenuPage() {
                 <section className="w-full max-w-md rounded-3xl border border-white/10 bg-brand-card p-8 text-center text-white">
                     <p className="mb-3 text-xs font-black uppercase tracking-[0.25em] text-neon-lime">1v1 Duels</p>
                     <h1 className="text-4xl font-black">Sign in to duel</h1>
-                    <p className="mt-4 text-sm leading-6 text-white/60">An account identifies both players and saves the final match result.</p>
+                    <p className="mt-4 text-sm leading-6 text-white/60">An account is only used to identify both players inside the lobby. Duel scores are not saved.</p>
                     <button type="button" onClick={() => router.push("/login")} className="mt-8 w-full rounded-2xl bg-neon-lime px-5 py-4 text-base font-black text-black transition hover:brightness-110 active:scale-[0.98]">Go to Login</button>
                 </section>
             </main>
@@ -91,15 +91,15 @@ export default function DuelMenuPage() {
                 <header className="mb-8 text-center">
                     <p className="mb-3 text-xs font-black uppercase tracking-[0.25em] text-neon-lime">Daily 1v1</p>
                     <h1 className="text-5xl font-black tracking-tight">Duels</h1>
-                    <p className="mx-auto mt-4 max-w-sm text-sm leading-6 text-white/60">Create a private lobby or enter a friend&apos;s code. Both players complete the same three targets. Lowest total error wins.</p>
+                    <p className="mx-auto mt-4 max-w-sm text-sm leading-6 text-white/60">Create a lobby or enter a friend&apos;s code. You both play today&apos;s exact five-round game, then compare scores at the end.</p>
                 </header>
                 <div className="space-y-4">
-                    <button type="button" onClick={handleCreateDuel} disabled={Boolean(loadingAction)} className="w-full rounded-2xl bg-neon-lime px-5 py-5 text-lg font-black text-black transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50">{loadingAction === "create" ? "Creating Match..." : "Create Private Match"}</button>
+                    <button type="button" onClick={handleCreateDuel} disabled={Boolean(loadingAction)} className="w-full rounded-2xl bg-neon-lime px-5 py-5 text-lg font-black text-black transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50">{loadingAction === "create" ? "Creating Lobby..." : "Create Lobby"}</button>
                     <div className="flex items-center gap-4 py-2"><div className="h-px flex-1 bg-white/10"/><span className="text-xs font-black uppercase tracking-[0.2em] text-white/35">Or join</span><div className="h-px flex-1 bg-white/10"/></div>
                     <form onSubmit={handleJoinDuel} className="rounded-3xl border border-white/10 bg-brand-card p-5">
-                        <label htmlFor="match-code" className="mb-3 block text-xs font-black uppercase tracking-[0.2em] text-white/50">Match code</label>
+                        <label htmlFor="match-code" className="mb-3 block text-xs font-black uppercase tracking-[0.2em] text-white/50">Lobby code</label>
                         <input id="match-code" name="match-code" type="text" value={matchCode} onChange={(event) => handleCodeChange(event.target.value)} placeholder="ABC123" autoComplete="off" autoCapitalize="characters" spellCheck={false} maxLength={6} disabled={Boolean(loadingAction)} className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-4 text-center font-mono text-3xl font-black uppercase tracking-[0.3em] text-white outline-none transition placeholder:text-white/15 focus:border-neon-lime/70 disabled:opacity-50"/>
-                        <button type="submit" disabled={Boolean(loadingAction) || matchCode.length !== 6} className="mt-4 w-full rounded-2xl border border-white/10 bg-white px-5 py-4 text-base font-black text-black transition hover:bg-white/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40">{loadingAction === "join" ? "Joining Match..." : "Join Match"}</button>
+                        <button type="submit" disabled={Boolean(loadingAction) || matchCode.length !== 6} className="mt-4 w-full rounded-2xl border border-white/10 bg-white px-5 py-4 text-base font-black text-black transition hover:bg-white/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40">{loadingAction === "join" ? "Joining Lobby..." : "Join Lobby"}</button>
                     </form>
                     {errorMessage && <div role="alert" className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-center text-sm font-bold text-red-300">{errorMessage}</div>}
                 </div>
