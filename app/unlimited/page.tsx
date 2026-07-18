@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import GameContainer from "@/components/game/GameContainer";
 
@@ -12,14 +12,24 @@ function generateTargets(): number[] {
 
 export default function UnlimitedPage() {
     const [gameKey, setGameKey] = useState(0);
-    const [targets, setTargets] = useState<number[]>(
-        generateTargets
-    );
+    const [targets, setTargets] = useState<number[] | null>(null);
+
+    useEffect(() => {
+        setTargets(generateTargets());
+    }, []);
 
     const startNewGame = () => {
         setTargets(generateTargets());
         setGameKey((currentKey) => currentKey + 1);
     };
+
+    if (!targets) {
+        return (
+            <main className="flex min-h-screen items-center justify-center">
+                <p className="text-zinc-500">Loading...</p>
+            </main>
+        );
+    }
 
     return (
         <main className="min-h-screen">
@@ -27,7 +37,7 @@ export default function UnlimitedPage() {
                 key={gameKey}
                 mode="normal"
                 targets={targets}
-                gameMode="practice"
+                gameMode="unlimited"
             />
 
             <div className="mx-auto w-full max-w-xl px-4 pb-10">
@@ -38,6 +48,7 @@ export default function UnlimitedPage() {
                 >
                     NEW GAME
                 </button>
+
                 <p className="mt-3 text-center text-xs text-zinc-500">
                     Unlimited games are played locally and are not saved.
                 </p>

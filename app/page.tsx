@@ -3,7 +3,13 @@
 import Link from "next/link";
 import LeaderboardPreview from "@/components/leaderboard/LeaderboardPreview";
 import { getDailyLeaderboard } from "@/lib/game/leaderboard";
-import { Play, BookOpen, Zap } from "lucide-react";
+import {
+    Play,
+    BookOpen,
+    Zap,
+    Infinity,
+    Trophy,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
@@ -33,7 +39,7 @@ export default function HomePage() {
         loadLeaderboard();
     }, []);
 
-    async function handlePlay() {
+    async function handleDaily() {
         const {
             data: { session },
         } = await supabase.auth.getSession();
@@ -56,6 +62,10 @@ export default function HomePage() {
         router.push("/play");
     }
 
+    async function handleUnlimited() {
+        router.push("/unlimited");
+    }
+
     return (
         <div className="relative">
             {/* Background Glow */}
@@ -72,18 +82,62 @@ export default function HomePage() {
                     DAILY TIMER CHALLENGE
                 </h2>
 
-                <p className="mt-1 text-sm leading-relaxed text-slate-400">
+                <p className="mt-2 text-sm leading-relaxed text-slate-400">
                     Can you accurately count time in your head
                     down to the exact millisecond?
                 </p>
 
-                <button
-                    onClick={handlePlay}
-                    className="group mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#39FF14] py-4 font-mono text-xs font-black uppercase tracking-wider text-black shadow-[0_0_20px_rgba(57,255,20,0.25)] transition-all duration-300 hover:bg-[#32e612] hover:shadow-[0_0_25px_rgba(57,255,20,0.45)] active:scale-[0.98]"
-                >
-                    <Play className="h-4 w-4 fill-current transition-transform group-hover:translate-x-0.5" />
-                    <span>Play Today's Challenge</span>
-                </button>
+                {/* Game Modes */}
+                <div className="mt-7 space-y-4">
+                    {/* Daily */}
+                    <button
+                        onClick={handleDaily}
+                        className="group w-full rounded-3xl border border-[#39FF14]/20 bg-[#39FF14]/10 p-5 text-left transition hover:border-[#39FF14]/50 hover:bg-[#39FF14]/15"
+                    >
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <Trophy className="h-5 w-5 text-[#39FF14]" />
+                                    <h3 className="font-mono text-sm font-bold uppercase tracking-wider text-white">
+                                        Daily Challenge
+                                    </h3>
+                                </div>
+
+                                <p className="mt-2 text-sm text-slate-400">
+                                    One official run each day.
+                                    Compete for the leaderboard.
+                                </p>
+                            </div>
+
+                            <Play className="h-5 w-5 text-[#39FF14] transition group-hover:translate-x-1" />
+                        </div>
+                    </button>
+
+                    {/* Unlimited */}
+                    <button
+                        onClick={handleUnlimited}
+                        className="group w-full rounded-3xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-white/20 hover:bg-white/[0.05]"
+                    >
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <Infinity className="h-5 w-5 text-sky-400" />
+                                    <h3 className="font-mono text-sm font-bold uppercase tracking-wider text-white">
+                                        Unlimited Mode
+                                    </h3>
+                                </div>
+
+                                <p className="mt-2 text-sm text-slate-400">
+                                    Practice anytime with unlimited
+                                    attempts. Scores don't affect the
+                                    leaderboard.
+                                </p>
+                            </div>
+
+                            <Play className="h-5 w-5 text-slate-300 transition group-hover:translate-x-1" />
+                        </div>
+                    </button>
+                </div>
             </section>
 
             {/* Leaderboard */}
@@ -91,7 +145,7 @@ export default function HomePage() {
                 entries={leaderboardEntries}
             />
 
-            {/* How To Play */}
+            {/* How To */}
             <nav className="mt-4">
                 <Link
                     href="/how-to-play"
@@ -105,7 +159,7 @@ export default function HomePage() {
                 </Link>
             </nav>
 
-            {/* How To Play Modal */}
+            {/* First-Time Modal */}
             {showHowTo && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-5">
                     <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-[#12151E] p-6">
@@ -124,8 +178,8 @@ export default function HomePage() {
                         </div>
 
                         <p className="mt-5 text-center text-sm text-slate-300">
-                            Tap START, then STOP when you think
-                            the target time has passed.
+                            Tap START, then STOP when you think the
+                            target time has passed.
                         </p>
 
                         <p className="mt-2 text-center text-sm text-slate-400">

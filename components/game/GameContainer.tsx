@@ -8,6 +8,9 @@ import ProgressDots from "./ProgressDots";
 import ResultReveal from "./ResultReveal";
 import TargetDisplay from "./TargetDisplay";
 import TargetHeader from "./TargetHeader";
+import UnlimitedResults from "./UnlimitedResults";
+console.log("UnlimitedResults import:", UnlimitedResults);
+console.log("Type:", typeof UnlimitedResults);
 
 import {
     saveRoundResult,
@@ -21,7 +24,7 @@ type GamePhase =
     | "finished";
 
 type Mode = "normal" | "extreme";
-type GameMode = "daily" | "practice";
+type GameMode = "daily" | "practice" | "unlimited";
 
 type RoundResult = {
     target: number;
@@ -47,11 +50,11 @@ type Submission = {
     total_error?: number | null;
     submitted_at?: string | null;
     [key: string]:
-        | string
-        | number
-        | boolean
-        | null
-        | undefined;
+    | string
+    | number
+    | boolean
+    | null
+    | undefined;
 };
 
 type GameContainerProps = {
@@ -69,7 +72,7 @@ export default function GameContainer({
 }: GameContainerProps) {
     const [phase, setPhase] =
         useState<GamePhase>(
-            gameMode === "practice"
+            gameMode !== "daily"
                 ? "waiting"
                 : submission?.completed
                     ? "finished"
@@ -78,7 +81,7 @@ export default function GameContainer({
 
     const [currentRound, setCurrentRound] =
         useState(
-            gameMode === "practice"
+            gameMode !== "daily"
                 ? 0
                 : Math.max(
                     0,
@@ -88,18 +91,18 @@ export default function GameContainer({
 
     const [results, setResults] =
         useState<RoundResult[]>(() => {
-            if (gameMode === "practice") return [];
+            if (gameMode !== "daily") return [];
 
             const restored: RoundResult[] = [];
 
             for (let i = 1; i <= 5; i++) {
                 const actual =
                     submission?.[
-                        `round_${i}_actual` as keyof Submission
+                    `round_${i}_actual` as keyof Submission
                     ];
                 const error =
                     submission?.[
-                        `round_${i}_error` as keyof Submission
+                    `round_${i}_error` as keyof Submission
                     ];
 
                 if (
@@ -283,6 +286,7 @@ export default function GameContainer({
                         currentRound={currentRound}
                         totalRounds={targets.length}
                         mode={mode}
+                        gameMode={gameMode}
                     />
 
                     <ProgressDots
@@ -336,7 +340,7 @@ export default function GameContainer({
                     <ActionButton
                         label={
                             currentRound ===
-                            targets.length - 1
+                                targets.length - 1
                                 ? "RESULTS"
                                 : "NEXT"
                         }
@@ -345,21 +349,27 @@ export default function GameContainer({
                 </div>
             )}
 
-            {phase === "finished" && (
-                <FinalResults
-                    results={results}
-                    totalError={totalError}
-                    mode={mode}
-                    dailyRank={dailyRank}
-                    percentile={percentile}
-                    allTimeRank={allTimeRank}
-                    totalRuns={totalRuns}
-                    showAchievement={showAchievement}
-                    onCloseAchievement={() =>
-                        setShowAchievement(false)
-                    }
-                />
-            )}
+            {phase === "finished" &&
+                (gameMode === "daily" ? (
+                    <FinalResults
+                        results={results}
+                        totalError={totalError}
+                        mode={mode}
+                        dailyRank={dailyRank}
+                        percentile={percentile}
+                        allTimeRank={allTimeRank}
+                        totalRuns={totalRuns}
+                        showAchievement={showAchievement}
+                        onCloseAchievement={() =>
+                            setShowAchievement(false)
+                        }
+                    />
+                ) : (
+                    <UnlimitedResults
+                        results={results}
+                        totalError={totalError}
+                    />
+                ))}
         </div>
     );
 }

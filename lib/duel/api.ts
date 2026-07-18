@@ -32,26 +32,6 @@ export async function joinPrivateDuel(
     return data as string;
 }
 
-export async function setReady(
-    duelId: string,
-    ready: boolean
-) {
-    const { error } =
-        await supabase.rpc(
-            "set_duel_ready",
-            {
-                p_duel_id:
-                    duelId,
-                p_ready:
-                    ready,
-            }
-        );
-
-    if (error) {
-        throw error;
-    }
-}
-
 export async function startDuel(
     duelId: string
 ) {
@@ -81,6 +61,23 @@ export async function submitTime(
                     roundId,
                 p_elapsed_ms:
                     elapsedMs,
+            }
+        );
+
+    if (error) {
+        throw error;
+    }
+}
+
+export async function advanceDuelRound(
+    duelId: string
+) {
+    const { error } =
+        await supabase.rpc(
+            "advance_duel_round",
+            {
+                p_duel_id:
+                    duelId,
             }
         );
 
