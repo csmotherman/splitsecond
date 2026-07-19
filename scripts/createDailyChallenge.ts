@@ -12,22 +12,18 @@ function generateTargets(): number[] {
     );
 }
 
+function getEasternDate(): string {
+    return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/New_York",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+    }).format(new Date());
+}
+
 async function run() {
-    const now = new Date();
-
-    const easternNow = new Date(
-        now.toLocaleString("en-US", {
-            timeZone: "America/New_York",
-        })
-    );
-
-    // Create tomorrow's challenge
-    easternNow.setDate(
-        easternNow.getDate() + 1
-    );
-
-    const challengeDate =
-        easternNow.toISOString().split("T")[0];
+    // Create today's challenge based on Eastern Time
+    const challengeDate = getEasternDate();
 
     console.log(
         `Checking normal challenge for ${challengeDate}`
@@ -80,5 +76,6 @@ run().catch((err) => {
         "Daily challenge creation failed:",
         err
     );
+
     process.exit(1);
 });
