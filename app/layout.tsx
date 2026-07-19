@@ -4,6 +4,12 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import { createClient } from "@/lib/supabase/server";
 
+const SITE_URL = "https://playsplitsecond.com";
+const SITE_NAME = "SplitSecond";
+const SITE_TITLE = "Play SplitSecond — Free Daily Timing Game";
+const SITE_DESCRIPTION =
+    "Play SplitSecond, a free daily timing game that tests your internal clock. Stop a hidden timer as close as possible to five target times and compete on the leaderboard.";
+
 const teko = Teko({
     subsets: ["latin"],
     weight: ["600", "700"],
@@ -19,25 +25,58 @@ const inter = Inter({
     subsets: ["latin"],
     variable: "--font-sans",
 });
+
 export const metadata: Metadata = {
-    metadataBase: new URL("https://splitsecond.gg"),
+    metadataBase: new URL(SITE_URL),
 
     title: {
-        default: "SplitSecond | Every Millisecond Matters",
+        default: SITE_TITLE,
         template: "%s | SplitSecond",
     },
 
-    description:
-        "Stop the hidden timer as close as possible to five daily target times.",
+    description: SITE_DESCRIPTION,
+    applicationName: SITE_NAME,
+    generator: "Next.js",
+    category: "game",
+    referrer: "origin-when-cross-origin",
 
-    applicationName: "SplitSecond",
+    keywords: [
+        "SplitSecond",
+        "play SplitSecond",
+        "daily timing game",
+        "timer game",
+        "hidden timer game",
+        "internal clock game",
+        "millisecond challenge",
+        "daily challenge game",
+        "free browser game",
+    ],
+
+    authors: [{ name: "SplitSecond", url: SITE_URL }],
+    creator: "SplitSecond",
+    publisher: "SplitSecond",
+
+    alternates: {
+        canonical: "/",
+    },
+
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+            "max-video-preview": -1,
+        },
+    },
 
     openGraph: {
-        title: "SplitSecond | Every Millisecond Matters",
-        description:
-            "Stop the hidden timer as close as possible to five daily target times.",
-        url: "https://splitsecond.gg",
-        siteName: "SplitSecond",
+        title: SITE_TITLE,
+        description: SITE_DESCRIPTION,
+        url: SITE_URL,
+        siteName: SITE_NAME,
         locale: "en_US",
         type: "website",
         images: [
@@ -45,24 +84,21 @@ export const metadata: Metadata = {
                 url: "/opengraph-image.png",
                 width: 1200,
                 height: 630,
-                alt: "SplitSecond Daily Timer Challenge",
+                alt: "Play SplitSecond, the free daily timing challenge",
             },
         ],
     },
 
     twitter: {
         card: "summary_large_image",
-        title: "SplitSecond | Every Millisecond Matters",
-        description:
-            "Stop the hidden timer as close as possible to five daily target times.",
+        title: SITE_TITLE,
+        description: SITE_DESCRIPTION,
         images: ["/twitter-image.png"],
     },
 
     icons: {
         icon: [
-            {
-                url: "/favicon.ico",
-            },
+            { url: "/favicon.ico" },
             {
                 url: "/icon.png",
                 sizes: "512x512",
@@ -77,14 +113,45 @@ export const metadata: Metadata = {
             },
         ],
     },
+
+    manifest: "/manifest.webmanifest",
+
+    formatDetection: {
+        email: false,
+        address: false,
+        telephone: false,
+    },
 };
 
 export const viewport: Viewport = {
     themeColor: "#0A0B0E",
+    colorScheme: "dark",
     width: "device-width",
     initialScale: 1,
     maximumScale: 1,
     userScalable: false,
+};
+
+const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    name: SITE_NAME,
+    alternateName: "Play SplitSecond",
+    url: SITE_URL,
+    description: SITE_DESCRIPTION,
+    image: `${SITE_URL}/opengraph-image.png`,
+    applicationCategory: "GameApplication",
+    operatingSystem: "Any",
+    browserRequirements: "Requires JavaScript and a modern web browser",
+    genre: ["Timing game", "Casual game", "Daily challenge"],
+    playMode: "SinglePlayer",
+    isAccessibleForFree: true,
+    offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+        availability: "https://schema.org/OnlineOnly",
+    },
 };
 
 export default async function RootLayout({
@@ -116,6 +183,13 @@ export default async function RootLayout({
             className={`dark ${teko.variable} ${geistMono.variable} ${inter.variable}`}
         >
             <body className="min-h-screen bg-[#0A0B0E] pb-12 text-slate-100 antialiased">
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+                    }}
+                />
+
                 <div className="mx-auto max-w-md px-5 py-6">
                     <Header
                         isLoggedIn={!!user}
