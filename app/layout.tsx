@@ -36,9 +36,7 @@ export const metadata: Metadata = {
 
     description: SITE_DESCRIPTION,
     applicationName: SITE_NAME,
-    generator: "Next.js",
     category: "game",
-    referrer: "origin-when-cross-origin",
 
     keywords: [
         "SplitSecond",
@@ -52,12 +50,12 @@ export const metadata: Metadata = {
         "free browser game",
     ],
 
-    authors: [{ name: "SplitSecond", url: SITE_URL }],
-    creator: "SplitSecond",
-    publisher: "SplitSecond",
+    authors: [{ name: SITE_NAME, url: SITE_URL }],
+    creator: SITE_NAME,
+    publisher: SITE_NAME,
 
     alternates: {
-        canonical: "/",
+        canonical: SITE_URL,
     },
 
     robots: {
@@ -81,7 +79,7 @@ export const metadata: Metadata = {
         type: "website",
         images: [
             {
-                url: "/opengraph-image.png",
+                url: "/opengraph-image",
                 width: 1200,
                 height: 630,
                 alt: "Play SplitSecond, the free daily timing challenge",
@@ -93,7 +91,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: SITE_TITLE,
         description: SITE_DESCRIPTION,
-        images: ["/twitter-image.png"],
+        images: ["/twitter-image"],
     },
 
     icons: {
@@ -139,7 +137,7 @@ const structuredData = {
     alternateName: "Play SplitSecond",
     url: SITE_URL,
     description: SITE_DESCRIPTION,
-    image: `${SITE_URL}/opengraph-image.png`,
+    image: `${SITE_URL}/opengraph-image`,
     applicationCategory: "GameApplication",
     operatingSystem: "Any",
     browserRequirements: "Requires JavaScript and a modern web browser",
