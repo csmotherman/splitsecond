@@ -5,8 +5,17 @@ import { useEffect, useState } from "react";
 import GameContainer from "@/components/game/GameContainer";
 
 function generateTargets(): number[] {
-    return Array.from({ length: 5 }, () =>
-        Number((Math.random() * 9 + 1).toFixed(2))
+    const possibleTargets = Array.from(
+        { length: 9 },
+        (_, i) => 1 + i * 0.5
+    );
+
+    return Array.from(
+        { length: 5 },
+        () =>
+            possibleTargets[
+                Math.floor(Math.random() * possibleTargets.length)
+            ]
     );
 }
 
