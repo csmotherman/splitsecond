@@ -2,8 +2,8 @@ name: Create Daily Challenge
 
 on:
   schedule:
-    # 11:58 PM Eastern (EDT)
-    - cron: "58 3 * * *"
+    # 12:00 AM Eastern (EDT during daylight saving)
+    - cron: "0 4 * * *"
 
   workflow_dispatch:
 
