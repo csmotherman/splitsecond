@@ -3,6 +3,7 @@ import { Teko, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import { createClient } from "@/lib/supabase/server";
+import { Analytics } from "@vercel/analytics/next"
 
 const SITE_URL = "https://playsplitsecond.com";
 const SITE_NAME = "SplitSecond";
