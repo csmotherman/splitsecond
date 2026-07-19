@@ -7,9 +7,9 @@ import { Analytics } from "@vercel/analytics/next";
 
 const SITE_URL = "https://playsplitsecond.com";
 const SITE_NAME = "SplitSecond";
-const SITE_TITLE = "Play SplitSecond — Free Daily Timing Game";
+const SITE_TITLE = "SplitSecond | Free Daily Timer Game";
 const SITE_DESCRIPTION =
-    "Play SplitSecond, a free daily timing game that tests your internal clock. Stop a hidden timer as close as possible to five target times and compete on the leaderboard.";
+    "SplitSecond is the free daily timer game where every millisecond matters. Stop a hidden timer as close as possible to five daily target times, climb the leaderboard, and see how accurate your internal clock really is.";
 
 const teko = Teko({
     subsets: ["latin"],
@@ -41,17 +41,27 @@ export const metadata: Metadata = {
 
     keywords: [
         "SplitSecond",
-        "play SplitSecond",
-        "daily timing game",
+        "daily timer game",
         "timer game",
+        "timing game",
+        "hidden timer",
         "hidden timer game",
         "internal clock game",
+        "time estimation game",
         "millisecond challenge",
-        "daily challenge game",
-        "free browser game",
+        "daily challenge",
+        "browser game",
+        "free online game",
+        "precision timing game",
     ],
 
-    authors: [{ name: SITE_NAME, url: SITE_URL }],
+    authors: [
+        {
+            name: SITE_NAME,
+            url: SITE_URL,
+        },
+    ],
+
     creator: SITE_NAME,
     publisher: SITE_NAME,
 
@@ -80,10 +90,10 @@ export const metadata: Metadata = {
         type: "website",
         images: [
             {
-                url: "/opengraph-image",
+                url: "/og-image.png",
                 width: 1200,
                 height: 630,
-                alt: "Play SplitSecond, the free daily timing challenge",
+                alt: "SplitSecond - Free Daily Timer Game",
             },
         ],
     },
@@ -92,18 +102,21 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: SITE_TITLE,
         description: SITE_DESCRIPTION,
-        images: ["/twitter-image"],
+        images: ["/og-image.png"],
     },
 
     icons: {
         icon: [
-            { url: "/favicon.ico" },
+            {
+                url: "/favicon.ico",
+            },
             {
                 url: "/icon.png",
                 sizes: "512x512",
                 type: "image/png",
             },
         ],
+
         apple: [
             {
                 url: "/apple-icon.png",
@@ -138,11 +151,17 @@ const structuredData = {
     alternateName: "Play SplitSecond",
     url: SITE_URL,
     description: SITE_DESCRIPTION,
-    image: `${SITE_URL}/opengraph-image`,
+    image: `${SITE_URL}/og-image.png`,
+    logo: `${SITE_URL}/icon.png`,
     applicationCategory: "GameApplication",
     operatingSystem: "Any",
-    browserRequirements: "Requires JavaScript and a modern web browser",
-    genre: ["Timing game", "Casual game", "Daily challenge"],
+    browserRequirements:
+        "Requires JavaScript and a modern web browser",
+    genre: [
+        "Timing Game",
+        "Daily Challenge",
+        "Casual Game",
+    ],
     playMode: "SinglePlayer",
     isAccessibleForFree: true,
     offers: {
@@ -151,6 +170,24 @@ const structuredData = {
         priceCurrency: "USD",
         availability: "https://schema.org/OnlineOnly",
     },
+    about: [
+        {
+            "@type": "Thing",
+            name: "Daily Timer Game",
+        },
+        {
+            "@type": "Thing",
+            name: "Timing Challenge",
+        },
+    ],
+};
+
+const organizationData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: `${SITE_URL}/icon.png`,
 };
 
 export default async function RootLayout({
@@ -185,7 +222,18 @@ export default async function RootLayout({
                 <script
                     type="application/ld+json"
                     dangerouslySetInnerHTML={{
-                        __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+                        __html: JSON.stringify(
+                            structuredData
+                        ).replace(/</g, "\\u003c"),
+                    }}
+                />
+
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify(
+                            organizationData
+                        ).replace(/</g, "\\u003c"),
                     }}
                 />
 
