@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
+import { useEffect, useRef, useState } from "react";
 import ActionButton from "./ActionButton";
 import FinalResults from "./FinalResults";
 import ProgressDots from "./ProgressDots";
@@ -173,9 +172,61 @@ export default function GameContainer({
         submission?.completed,
         submission?.total_error,
     ]);
+    const audioContextRef = useRef<AudioContext | null>(null);
+
+    const playButtonSound = (type: "start" | "stop") => {
+        try {
+            const AudioContextClass =
+                window.AudioContext ||
+                (
+                    window as typeof window & {
+                        webkitAudioContext?: typeof AudioContext;
+                    }
+                ).webkitAudioContext;
+
+            if (!AudioContextClass) return;
+
+            const audioContext =
+                audioContextRef.current ??
+                new AudioContextClass();
+
+            audioContextRef.current = audioContext;
+
+            if (audioContext.state === "suspended") {
+                void audioContext.resume();
+            }
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            const now = audioContext.currentTime;
+
+            oscillator.type = "sine";
+            oscillator.frequency.setValueAtTime(
+                type === "start" ? 700 : 420,
+                now
+            );
+
+            gainNode.gain.setValueAtTime(0.0001, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.18, now + 0.005);
+            gainNode.gain.exponentialRampToValueAtTime(
+                0.0001,
+                now + 0.08
+            );
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.start(now);
+            oscillator.stop(now + 0.08);
+        } catch (error) {
+            console.warn("Unable to play button sound:", error);
+        }
+    };
 
     const handleButtonPress = async () => {
         if (!isRunning) {
+            playButtonSound("start");
+
             setStartTimestamp(performance.now());
             setIsRunning(true);
             return;
@@ -183,19 +234,38 @@ export default function GameContainer({
 
         if (startTimestamp === null) return;
 
+        const stopTimestamp = performance.now();
+
+        playButtonSound("stop");
+
         const elapsed =
-            (performance.now() - startTimestamp) / 1000;
+            (stopTimestamp - startTimestamp) / 1000;
+
         const roundedActual = Number(elapsed.toFixed(2));
+
         const error = Number(
             Math.abs(target - roundedActual).toFixed(2)
         );
+
         const roundNumber = currentRound + 1;
+
         const newResult: RoundResult = {
             target,
             actual: roundedActual,
             error,
         };
+
         const updatedResults = [...results, newResult];
+
+        /*
+        * Stop the timer immediately.
+        * Do not wait for the database request to finish.
+        */
+        setActualTime(roundedActual);
+        setResults(updatedResults);
+        setIsRunning(false);
+        setStartTimestamp(null);
+        setPhase("result");
 
         try {
             setSaving(true);
@@ -237,12 +307,6 @@ export default function GameContainer({
                     );
                 }
             }
-
-            setActualTime(roundedActual);
-            setResults(updatedResults);
-            setIsRunning(false);
-            setStartTimestamp(null);
-            setPhase("result");
         } catch (error) {
             console.error(
                 "Failed to save round result:",
