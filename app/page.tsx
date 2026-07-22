@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
 
 export default function HomePage() {
     const router = useRouter();
@@ -40,16 +39,7 @@ export default function HomePage() {
         loadLeaderboard();
     }, []);
 
-    async function handleDaily() {
-        const {
-            data: { session },
-        } = await supabase.auth.getSession();
-
-        if (!session) {
-            router.push("/login");
-            return;
-        }
-
+    function handleDaily() {
         const hasSeenHowTo =
             localStorage.getItem(
                 "splitsecond-how-to-play-seen"
