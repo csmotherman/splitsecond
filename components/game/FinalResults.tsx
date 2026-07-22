@@ -220,143 +220,124 @@ export default function FinalResults({
         return () => clearInterval(interval);
     }, [resultGrade.triggerConfetti]);
 
-    const getRoundColor = (error: number) => {
-        if (error <= 0.02)
-            return "text-emerald-400 bg-emerald-500/10";
-        if (error <= 0.08)
-            return "text-cyan-400 bg-cyan-500/10";
-        if (error <= 0.2)
-            return "text-amber-400 bg-amber-500/10";
-        return "text-rose-400 bg-rose-500/10";
+    const getRoundTextColor = (error: number) => {
+        if (error <= 0.02) return "text-emerald-400";
+        if (error <= 0.08) return "text-cyan-400";
+        if (error <= 0.2) return "text-amber-400";
+        return "text-rose-400";
     };
 
     return (
         <>
-            <div className="mx-auto w-full max-w-sm select-none px-4 py-6">
+            <div className="mx-auto w-full max-w-sm select-none px-3 py-3">
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9, y: 15 }}
+                    initial={{ opacity: 0, scale: 0.94, y: 12 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
                     style={{
-                        boxShadow: `0 0 50px -10px ${resultGrade.glowColor}`,
+                        boxShadow: `0 0 40px -12px ${resultGrade.glowColor}`,
                     }}
-                    className={`relative overflow-hidden rounded-[2rem] border bg-gradient-to-b ${resultGrade.bgGradient} ${resultGrade.borderGlow} bg-zinc-950/90 p-6 backdrop-blur-2xl shadow-2xl`}
+                    className={`relative overflow-hidden rounded-3xl border bg-gradient-to-b ${resultGrade.bgGradient} ${resultGrade.borderGlow} bg-zinc-950/90 p-4 backdrop-blur-2xl shadow-2xl`}
                 >
-                    <div className="mb-4 flex items-center justify-between">
-                        <span className="rounded-full border border-white/10 bg-black/50 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">
-                            {mode === "normal"
-                                ? "Normal Mode"
-                                : "Extreme Mode"}
+                    <div className="mb-3 flex items-center justify-between">
+                        <span className="rounded-full border border-white/10 bg-black/50 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-widest text-zinc-400">
+                            {mode === "normal" ? "Normal Mode" : "Extreme Mode"}
                         </span>
-                        <span className="flex items-center gap-1.5 text-xs font-bold text-zinc-500">
+                        <span className="flex items-center gap-1.5 text-[11px] font-bold text-zinc-500">
                             <Target className="h-3.5 w-3.5" />
                             SplitSecond
                         </span>
                     </div>
 
-                    <div className="flex flex-col items-center border-b border-white/5 pb-6">
-                        <motion.div
-                            initial={{ scale: 0, rotate: -25 }}
-                            animate={{ scale: 1, rotate: 0 }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 300,
-                                damping: 18,
-                                delay: 0.1,
-                            }}
-                            className="relative"
-                        >
-                            {resultGrade.isShining && (
-                                <Crown className="absolute -top-4 left-1/2 z-10 h-8 w-8 -translate-x-1/2 fill-amber-300/30 text-amber-300" />
-                            )}
-                            <span className={`bg-gradient-to-br ${resultGrade.color} bg-clip-text text-8xl font-black tracking-tighter text-transparent drop-shadow-md`}>
-                                {resultGrade.grade}
-                            </span>
-                        </motion.div>
-
-                        <div className="mt-2 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-300">
-                            <span>{resultGrade.subtext}</span>
-                            <span>{resultGrade.emoji}</span>
-                        </div>
-
-                        <div className="mt-4 flex flex-col items-center">
-                            <span className="mb-1 text-xs font-bold uppercase tracking-widest text-zinc-500">
-                                Total Error
-                            </span>
-                            <div className="text-4xl font-black leading-none tracking-tight text-white">
-                                {totalError.toFixed(3)}
-                                <span className="ml-1 text-lg font-medium text-zinc-500">
-                                    s
+                    <div className="flex items-end justify-between border-b border-white/5 pb-4">
+                        <div>
+                            <motion.div
+                                initial={{ scale: 0, rotate: -18 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{
+                                    type: "spring",
+                                    stiffness: 300,
+                                    damping: 18,
+                                    delay: 0.08,
+                                }}
+                                className="relative flex items-center gap-2"
+                            >
+                                {resultGrade.isShining && (
+                                    <Crown className="absolute -top-3 left-5 z-10 h-6 w-6 -translate-x-1/2 fill-amber-300/30 text-amber-300" />
+                                )}
+                                <span className={`bg-gradient-to-br ${resultGrade.color} bg-clip-text text-5xl font-black tracking-tighter text-transparent drop-shadow-md`}>
+                                    {resultGrade.grade}
                                 </span>
-                            </div>
+                                <span className="text-xl">{resultGrade.emoji}</span>
+                            </motion.div>
+                            <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">
+                                {resultGrade.subtext}
+                            </p>
+                        </div>
+
+                        <div className="text-right">
+                            <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">
+                                Total Error
+                            </p>
+                            <p className="mt-1 text-3xl font-black leading-none tracking-tight text-white">
+                                +{totalError.toFixed(3)}
+                                <span className="ml-1 text-sm font-medium text-zinc-500">s</span>
+                            </p>
                         </div>
                     </div>
 
-                    <div className="mt-5 grid w-full grid-cols-2 gap-3">
-                        <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/10 p-3 text-center">
-                            <div className="text-[10px] font-bold uppercase tracking-widest text-yellow-400">
-                                Daily Rank
-                            </div>
-                            <div className="mt-1 text-2xl font-black text-white">
-                                {typeof dailyRank === "number"
-                                    ? `#${dailyRank}`
-                                    : "--"}
-                            </div>
-                        </div>
-
-                        <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/10 p-3 text-center">
-                            <div className="text-[10px] font-bold uppercase tracking-widest text-cyan-400">
-                                All-Time Rank
-                            </div>
-                            <div className="mt-1 text-2xl font-black text-white">
-                                {typeof allTimeRank === "number"
-                                    ? `#${allTimeRank}`
-                                    : "--"}
-                            </div>
-                            {typeof totalRuns === "number" && (
-                                <div className="mt-1 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                                    of {totalRuns} runs
-                                </div>
-                            )}
-                        </div>
+                    <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-xl border border-white/5 bg-black/30 px-3 py-2 text-[10px] font-bold uppercase tracking-wide">
+                        <span className="text-yellow-400">
+                            Daily {typeof dailyRank === "number" ? `#${dailyRank}` : "--"}
+                        </span>
+                        <span className="text-zinc-700">•</span>
+                        <span className="text-cyan-400">
+                            All-Time {typeof allTimeRank === "number" ? `#${allTimeRank}` : "--"}
+                            {typeof totalRuns === "number" ? ` / ${totalRuns}` : ""}
+                        </span>
+                        {typeof percentile === "number" && (
+                            <>
+                                <span className="text-zinc-700">•</span>
+                                <span className="text-zinc-400">
+                                    Top {Math.max(0, 100 - percentile).toFixed(1)}%
+                                </span>
+                            </>
+                        )}
                     </div>
 
-                    {typeof percentile === "number" && (
-                        <p className="mt-3 text-center text-xs font-semibold text-zinc-400">
-                            Better than {percentile.toFixed(1)}% of all completed runs
-                        </p>
-                    )}
+                    <div className="mt-3 overflow-hidden rounded-xl border border-white/5 bg-black/30">
+                        <div className="grid grid-cols-[32px_1fr_1fr_64px] px-3 py-1.5 text-[8px] font-bold uppercase tracking-widest text-zinc-600">
+                            <span>Rnd</span>
+                            <span>Target</span>
+                            <span>Yours</span>
+                            <span className="text-right">Error</span>
+                        </div>
 
-                    <div className="mt-6 space-y-2">
                         {results.slice(0, 5).map((result, index) => (
                             <motion.div
                                 key={index}
-                                initial={{ opacity: 0, x: -10 }}
+                                initial={{ opacity: 0, x: -8 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.2 + index * 0.05 }}
-                                className="flex items-center justify-between rounded-xl border border-white/5 bg-black/40 px-4 py-3"
+                                transition={{ delay: 0.14 + index * 0.04 }}
+                                className="grid grid-cols-[32px_1fr_1fr_64px] items-center border-t border-white/5 px-3 py-2"
                             >
-                                <div className="flex items-center gap-4">
-                                    <span className="w-5 text-xs font-extrabold text-zinc-500">
-                                        R{index + 1}
-                                    </span>
-                                    <div className="flex items-baseline gap-2">
-                                        <span className="text-sm font-bold text-white">
-                                            {result.actual.toFixed(2)}s
-                                        </span>
-                                        <span className="text-[10px] font-medium text-zinc-500">
-                                            / {result.target.toFixed(1)}s
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className={`rounded-md px-2.5 py-1 font-mono text-xs font-bold tracking-tight ${getRoundColor(result.error)}`}>
+                                <span className="text-[11px] font-extrabold text-zinc-500">
+                                    {index + 1}
+                                </span>
+                                <span className="text-xs font-semibold text-zinc-400">
+                                    {result.target.toFixed(2)}s
+                                </span>
+                                <span className="text-xs font-bold text-white">
+                                    {result.actual.toFixed(2)}s
+                                </span>
+                                <span className={`text-right font-mono text-[11px] font-bold ${getRoundTextColor(result.error)}`}>
                                     +{result.error.toFixed(2)}s
-                                </div>
+                                </span>
                             </motion.div>
                         ))}
                     </div>
 
-                    <div className="mt-6 flex gap-3">
+                    <div className="mt-3 flex gap-2">
                         <Share
                             results={results}
                             totalError={totalError}
@@ -366,7 +347,7 @@ export default function FinalResults({
 
                         <Link
                             href="/leaderboard"
-                            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-zinc-800/80 px-4 py-3.5 text-sm font-bold text-white transition hover:bg-zinc-700"
+                            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-zinc-800/80 px-3 py-3 text-xs font-bold text-white transition hover:bg-zinc-700"
                         >
                             <Trophy className="h-4 w-4 text-yellow-400" />
                             <span>Leaderboard</span>
