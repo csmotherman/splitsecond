@@ -3,13 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import ActionButton from "./ActionButton";
 import FinalResults from "./FinalResults";
+import GuestResultsGate from "./GuestResultsGate";
 import ProgressDots from "./ProgressDots";
 import ResultReveal from "./ResultReveal";
 import TargetDisplay from "./TargetDisplay";
 import TargetHeader from "./TargetHeader";
 import UnlimitedResults from "./UnlimitedResults";
-console.log("UnlimitedResults import:", UnlimitedResults);
-console.log("Type:", typeof UnlimitedResults);
 
 import {
     saveRoundResult,
@@ -17,10 +16,7 @@ import {
     getSubmissionStats,
 } from "@/lib/game/submissions";
 
-type GamePhase =
-    | "waiting"
-    | "result"
-    | "finished";
+type GamePhase = "waiting" | "result" | "finished";
 
 type Mode = "normal" | "extreme";
 type GameMode = "daily" | "practice" | "unlimited";
@@ -49,11 +45,11 @@ type Submission = {
     total_error?: number | null;
     submitted_at?: string | null;
     [key: string]:
-    | string
-    | number
-    | boolean
-    | null
-    | undefined;
+        | string
+        | number
+        | boolean
+        | null
+        | undefined;
 };
 
 type GameContainerProps = {
@@ -61,79 +57,66 @@ type GameContainerProps = {
     mode: Mode;
     gameMode?: GameMode;
     submission?: Submission;
+    challengeId?: string;
+    isLoggedIn?: boolean;
 };
+
+const PENDING_RUN_KEY = "splitsecond_pending_daily";
 
 export default function GameContainer({
     targets,
     mode,
     gameMode = "daily",
     submission,
+    challengeId,
+    isLoggedIn = false,
 }: GameContainerProps) {
-    const [phase, setPhase] =
-        useState<GamePhase>(
-            gameMode !== "daily"
-                ? "waiting"
-                : submission?.completed
-                    ? "finished"
-                    : "waiting"
-        );
+    const [phase, setPhase] = useState<GamePhase>(
+        gameMode !== "daily"
+            ? "waiting"
+            : submission?.completed
+              ? "finished"
+              : "waiting"
+    );
 
-    const [currentRound, setCurrentRound] =
-        useState(
-            gameMode !== "daily"
-                ? 0
-                : Math.max(
-                    0,
-                    (submission?.current_round ?? 1) - 1
-                )
-        );
+    const [currentRound, setCurrentRound] = useState(
+        gameMode !== "daily"
+            ? 0
+            : Math.max(0, (submission?.current_round ?? 1) - 1)
+    );
 
-    const [results, setResults] =
-        useState<RoundResult[]>(() => {
-            if (gameMode !== "daily") return [];
+    const [results, setResults] = useState<RoundResult[]>(() => {
+        if (gameMode !== "daily") return [];
 
-            const restored: RoundResult[] = [];
+        const restored: RoundResult[] = [];
 
-            for (let i = 1; i <= 5; i++) {
-                const actual =
-                    submission?.[
-                    `round_${i}_actual` as keyof Submission
-                    ];
-                const error =
-                    submission?.[
-                    `round_${i}_error` as keyof Submission
-                    ];
+        for (let i = 1; i <= 5; i++) {
+            const actual =
+                submission?.[`round_${i}_actual` as keyof Submission];
+            const error =
+                submission?.[`round_${i}_error` as keyof Submission];
 
-                if (
-                    typeof actual === "number" &&
-                    typeof error === "number"
-                ) {
-                    restored.push({
-                        target: targets[i - 1],
-                        actual,
-                        error,
-                    });
-                }
+            if (typeof actual === "number" && typeof error === "number") {
+                restored.push({
+                    target: targets[i - 1],
+                    actual,
+                    error,
+                });
             }
+        }
 
-            return restored;
-        });
+        return restored;
+    });
 
     const [actualTime, setActualTime] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [startTimestamp, setStartTimestamp] =
-        useState<number | null>(null);
-    const [dailyRank, setDailyRank] =
-        useState<number>();
-    const [percentile, setPercentile] =
-        useState<number>();
-    const [allTimeRank, setAllTimeRank] =
-        useState<number>();
-    const [totalRuns, setTotalRuns] =
-        useState<number>();
-    const [showAchievement, setShowAchievement] =
-        useState(false);
+    const [startTimestamp, setStartTimestamp] = useState<number | null>(null);
+    const [dailyRank, setDailyRank] = useState<number>();
+    const [percentile, setPercentile] = useState<number>();
+    const [allTimeRank, setAllTimeRank] = useState<number>();
+    const [totalRuns, setTotalRuns] = useState<number>();
+    const [showAchievement, setShowAchievement] = useState(false);
 
     const target = targets[currentRound];
 
@@ -158,10 +141,7 @@ export default function GameContainer({
                 setAllTimeRank(stats.allTimeRank);
                 setTotalRuns(stats.totalRuns);
             } catch (error) {
-                console.error(
-                    "Failed to load submission stats:",
-                    error
-                );
+                console.error("Failed to load submission stats:", error);
             }
         }
 
@@ -172,6 +152,7 @@ export default function GameContainer({
         submission?.completed,
         submission?.total_error,
     ]);
+
     const audioContextRef = useRef<AudioContext | null>(null);
 
     const playButtonSound = (type: "start" | "stop") => {
@@ -187,8 +168,7 @@ export default function GameContainer({
             if (!AudioContextClass) return;
 
             const audioContext =
-                audioContextRef.current ??
-                new AudioContextClass();
+                audioContextRef.current ?? new AudioContextClass();
 
             audioContextRef.current = audioContext;
 
@@ -208,10 +188,7 @@ export default function GameContainer({
 
             gainNode.gain.setValueAtTime(0.0001, now);
             gainNode.gain.exponentialRampToValueAtTime(0.18, now + 0.005);
-            gainNode.gain.exponentialRampToValueAtTime(
-                0.0001,
-                now + 0.08
-            );
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
 
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
@@ -226,7 +203,6 @@ export default function GameContainer({
     const handleButtonPress = async () => {
         if (!isRunning) {
             playButtonSound("start");
-
             setStartTimestamp(performance.now());
             setIsRunning(true);
             return;
@@ -235,45 +211,53 @@ export default function GameContainer({
         if (startTimestamp === null) return;
 
         const stopTimestamp = performance.now();
-
         playButtonSound("stop");
 
-        const elapsed =
-            (stopTimestamp - startTimestamp) / 1000;
-
+        const elapsed = (stopTimestamp - startTimestamp) / 1000;
         const roundedActual = Number(elapsed.toFixed(2));
-
-        const error = Number(
-            Math.abs(target - roundedActual).toFixed(2)
-        );
-
+        const error = Number(Math.abs(target - roundedActual).toFixed(2));
         const roundNumber = currentRound + 1;
-
         const newResult: RoundResult = {
             target,
             actual: roundedActual,
             error,
         };
-
         const updatedResults = [...results, newResult];
+        const isFinalRound = roundNumber === targets.length;
+        const finalTotalError = Number(
+            updatedResults
+                .reduce((sum, result) => sum + result.error, 0)
+                .toFixed(2)
+        );
 
-        /*
-        * Stop the timer immediately.
-        * Do not wait for the database request to finish.
-        */
         setActualTime(roundedActual);
         setResults(updatedResults);
         setIsRunning(false);
         setStartTimestamp(null);
         setPhase("result");
 
+        if (
+            gameMode === "daily" &&
+            isFinalRound &&
+            !submission &&
+            challengeId
+        ) {
+            localStorage.setItem(
+                PENDING_RUN_KEY,
+                JSON.stringify({
+                    challengeId,
+                    mode,
+                    results: updatedResults,
+                    totalError: finalTotalError,
+                    completedAt: new Date().toISOString(),
+                })
+            );
+        }
+
         try {
             setSaving(true);
 
-            if (
-                gameMode === "daily" &&
-                submission
-            ) {
+            if (gameMode === "daily" && submission) {
                 await saveRoundResult(
                     submission.id,
                     roundNumber,
@@ -281,37 +265,21 @@ export default function GameContainer({
                     error
                 );
 
-                if (roundNumber === targets.length) {
-                    const finalTotalError = Number(
-                        updatedResults
-                            .reduce(
-                                (sum, result) =>
-                                    sum + result.error,
-                                0
-                            )
-                            .toFixed(2)
+                if (isFinalRound) {
+                    const stats = await completeSubmission(
+                        submission.id,
+                        finalTotalError
                     );
-
-                    const stats =
-                        await completeSubmission(
-                            submission.id,
-                            finalTotalError
-                        );
 
                     setDailyRank(stats.dailyRank);
                     setPercentile(stats.percentile);
                     setAllTimeRank(stats.allTimeRank);
                     setTotalRuns(stats.totalRuns);
-                    setShowAchievement(
-                        stats.allTimeRank <= 10
-                    );
+                    setShowAchievement(stats.allTimeRank <= 10);
                 }
             }
         } catch (error) {
-            console.error(
-                "Failed to save round result:",
-                error
-            );
+            console.error("Failed to save round result:", error);
         } finally {
             setSaving(false);
         }
@@ -334,11 +302,7 @@ export default function GameContainer({
 
     const totalError = Number(
         results
-            .reduce(
-                (sum, result) =>
-                    sum + result.error,
-                0
-            )
+            .reduce((sum, result) => sum + result.error, 0)
             .toFixed(2)
     );
 
@@ -371,9 +335,7 @@ export default function GameContainer({
                     </p>
 
                     {saving && gameMode === "daily" && (
-                        <p className="text-green-400">
-                            Saving round...
-                        </p>
+                        <p className="text-green-400">Saving round...</p>
                     )}
 
                     <ActionButton
@@ -381,8 +343,8 @@ export default function GameContainer({
                             saving
                                 ? "SAVING..."
                                 : isRunning
-                                    ? "STOP"
-                                    : "START"
+                                  ? "STOP"
+                                  : "START"
                         }
                         isRunning={isRunning}
                         disabled={saving}
@@ -396,15 +358,12 @@ export default function GameContainer({
                     <ResultReveal
                         target={target}
                         actual={actualTime}
-                        error={Math.abs(
-                            target - actualTime
-                        )}
+                        error={Math.abs(target - actualTime)}
                     />
 
                     <ActionButton
                         label={
-                            currentRound ===
-                                targets.length - 1
+                            currentRound === targets.length - 1
                                 ? "RESULTS"
                                 : "NEXT"
                         }
@@ -415,19 +374,23 @@ export default function GameContainer({
 
             {phase === "finished" &&
                 (gameMode === "daily" ? (
-                    <FinalResults
-                        results={results}
-                        totalError={totalError}
-                        mode={mode}
-                        dailyRank={dailyRank}
-                        percentile={percentile}
-                        allTimeRank={allTimeRank}
-                        totalRuns={totalRuns}
-                        showAchievement={showAchievement}
-                        onCloseAchievement={() =>
-                            setShowAchievement(false)
-                        }
-                    />
+                    isLoggedIn ? (
+                        <FinalResults
+                            results={results}
+                            totalError={totalError}
+                            mode={mode}
+                            dailyRank={dailyRank}
+                            percentile={percentile}
+                            allTimeRank={allTimeRank}
+                            totalRuns={totalRuns}
+                            showAchievement={showAchievement}
+                            onCloseAchievement={() =>
+                                setShowAchievement(false)
+                            }
+                        />
+                    ) : (
+                        <GuestResultsGate mode={mode} />
+                    )
                 ) : (
                     <UnlimitedResults
                         results={results}
