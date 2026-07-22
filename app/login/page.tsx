@@ -1,21 +1,37 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+
 import { supabase } from "@/lib/supabase/client";
 
-export default function LoginPage() {
+function LoginPageContent() {
+    const searchParams = useSearchParams();
+
     async function signInWithGoogle() {
-        const redirectTo =
-            `${window.location.origin}/auth/callback`;
+        const requestedNext = searchParams.get("next") ?? "/";
+        const safeNext =
+            requestedNext.startsWith("/") &&
+            !requestedNext.startsWith("//")
+                ? requestedNext
+                : "/";
 
-        const result =
-            await supabase.auth.signInWithOAuth({
-                provider: "google",
-                options: {
-                    redirectTo,
-                },
-            });
+        const callbackUrl = new URL(
+            "/auth/callback",
+            window.location.origin
+        );
+        callbackUrl.searchParams.set("next", safeNext);
 
-        console.log(result);
+        const result = await supabase.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+                redirectTo: callbackUrl.toString(),
+            },
+        });
+
+        if (result.error) {
+            console.error("Unable to start Google sign-in:", result.error);
+        }
     }
 
     return (
@@ -52,24 +68,14 @@ export default function LoginPage() {
 
                         <p className="mt-3 text-sm font-medium text-white">
                             The earlier you join, the more history and statistics
-                            you'll build as new features are released.
+                            you&apos;ll build as new features are released.
                         </p>
                     </div>
 
                     <button
+                        type="button"
                         onClick={signInWithGoogle}
-                        className="
-                    mt-6
-                    w-full
-                    rounded-2xl
-                    bg-white
-                    px-5
-                    py-4
-                    font-semibold
-                    text-black
-                    transition
-                    hover:scale-[1.02]
-                "
+                        className="mt-6 w-full rounded-2xl bg-white px-5 py-4 font-semibold text-black transition hover:scale-[1.02]"
                     >
                         Continue with Google
                     </button>
@@ -80,5 +86,13 @@ export default function LoginPage() {
                 </div>
             </div>
         </main>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={null}>
+            <LoginPageContent />
+        </Suspense>
     );
 }
