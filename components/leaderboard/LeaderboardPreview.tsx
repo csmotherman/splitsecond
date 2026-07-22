@@ -39,7 +39,7 @@ export default function LeaderboardPreview({
                         <Trophy className="h-5 w-5 text-[#39FF14]" />
 
                         <h3 className="font-mono text-xs font-black uppercase tracking-[0.25em] text-slate-300">
-                            Daily Challenge
+                            Daily Leaderboard
                         </h3>
                     </div>
 
