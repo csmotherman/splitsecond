@@ -81,3 +81,42 @@
     background: #1e293b;
     border-radius: 9999px;
 }
+
+@keyframes podium-gold {
+    0%, 100% {
+        filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.45));
+    }
+    50% {
+        filter: drop-shadow(0 0 18px rgba(255, 215, 0, 0.95));
+    }
+}
+
+@keyframes podium-silver {
+    0%, 100% {
+        filter: drop-shadow(0 0 6px rgba(226, 232, 240, 0.4));
+    }
+    50% {
+        filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.85));
+    }
+}
+
+@keyframes podium-bronze {
+    0%, 100% {
+        filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.4));
+    }
+    50% {
+        filter: drop-shadow(0 0 16px rgba(251, 146, 60, 0.85));
+    }
+}
+
+.animate-gold {
+    animation: podium-gold 2.2s ease-in-out infinite;
+}
+
+.animate-silver {
+    animation: podium-silver 2.4s ease-in-out infinite;
+}
+
+.animate-bronze {
+    animation: podium-bronze 2.6s ease-in-out infinite;
+}
